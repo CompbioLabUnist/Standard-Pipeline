@@ -18,7 +18,7 @@ config = configparser.ConfigParser(interpolation=configparser.ExtendedInterpolat
 config.read(args.config)
 
 args.input.sort()
-name = args.output[:-4]
+name = args.output.split(".")[0]
 
 with open(f"BWA_{name}.sh", "w") as sh:
     sh.write("#!/bin/bash\n")
