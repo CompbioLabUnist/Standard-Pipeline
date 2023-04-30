@@ -17,3 +17,4 @@ DOI: 10.1186/gb-2009-10-3-r25
 ## Mark Duplicates
 
 ## Base quality score recalibate
+https://gatk.broadinstitute.org/hc/en-us/articles/360035890531-Base-Quality-Score-Recalibration-BQSR-
