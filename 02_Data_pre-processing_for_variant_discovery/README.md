@@ -15,6 +15,7 @@ DOI: 10.1186/gb-2009-10-3-r25
 ## Sort
 
 ## Mark Duplicates
+https://gatk.broadinstitute.org/hc/en-us/articles/13832682540699-MarkDuplicatesSpark
 
 ## Base quality score recalibate
 https://gatk.broadinstitute.org/hc/en-us/articles/360035890531-Base-Quality-Score-Recalibration-BQSR-
