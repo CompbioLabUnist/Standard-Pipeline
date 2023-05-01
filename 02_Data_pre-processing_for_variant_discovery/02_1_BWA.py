@@ -46,7 +46,7 @@ markduplicates_job_id = subprocess.check_output(f"sbatch --dependency=afterok:{s
 # Base Quality Score Recalibration (BQSR)
 with open(f"BQSR_{name}.sh", "w") as sh:
     sh.write("#!/bin/bash\n")
-    sh.write(f"{config['TOOLS']['gatk']} BaseRecalibrator --input {args.output}/{name}.Sort.MarkDuplicates.bam --referece {config['REFERENCES']['fasta']} --output {args.output}/{name}.Sort.MarkDuplicates.BQSR.table --create-output-bam-index true")
+    sh.write(f"{config['TOOLS']['gatk']} BaseRecalibrator --input {args.output}/{name}.Sort.MarkDuplicates.bam --reference {config['REFERENCES']['fasta']} --output {args.output}/{name}.Sort.MarkDuplicates.BQSR.table --create-output-bam-index true")
     for site in config['REFERENCES']['sites'].split(" "):
         sh.write(f" --known-sites {site}")
 
