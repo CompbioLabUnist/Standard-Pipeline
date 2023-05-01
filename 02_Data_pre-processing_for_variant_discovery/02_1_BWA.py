@@ -32,14 +32,14 @@ mapping_job_id = subprocess.check_output(f"sbatch --chdir=$(realpath .) --cpus-p
 # Sort
 with open(f"Sort_{name}.sh", "w") as sh:
     sh.write("#!/bin/bash\n")
-    sh.write(f"{config['TOOLS']['samtools']} sort -l 9 --threads {config['DEFAULT']['threads']} --reference {config['REFERENCES']['fasta']} --write-index -o {args.output}/{name}.Sort.bam {args.output}/{name}.bam")
+    sh.write(f"{config['TOOLS']['samtools']} sort -l 9 --threads {config['DEFAULT']['threads']} -m {int(config['DEFAULT']['memory']) // int(config['DEFAULT']['threads'])}G --reference {config['REFERENCES']['fasta']} --write-index -o {args.output}/{name}.Sort.bam {args.output}/{name}.bam")
 
 sorting_job_id = subprocess.check_output(f"sbatch --dependency=afterok:{mapping_job_id} --chdir=$(realpath .) --cpus-per-task={config['DEFAULT']['threads']} --error='%x-%A.txt' --job-name='Sort_{name}' --mem={config['DEFAULT']['memory']}G --output='%x-%A.txt' --export=ALL Sort_{name}.sh", encoding="utf-8", shell=True).split()[-1]
 
 # Mark Duplicates
 with open(f"MarkDup_{name}.sh", "w") as sh:
     sh.write("#!/bin/bash\n")
-    sh.write(f"{config['TOOLS']['picard']} MarkDuplicates --INPUT {args.output}/{name}.Sort.bam --REFERENCE_SEQUENCE {config['REFERENCES']['fasta']} --OUTPUT {args.output}/{name}.Sort.MarkDuplicates.bam --METRICS_FILE {args.output}/{name}.Sort.MarkDuplicates.metrics --ASSUME_SORT_ORDER 'coordinate' --VALIDATION_STRINGENCY 'LENIENT' --CREATE_INDEX true")
+    sh.write(f"{config['TOOLS']['gatk']} MarkDuplicatesSpark --input {args.output}/{name}.Sort.bam --output {args.output}/{name}.Sort.MarkDuplicates.bam --reference {config['REFERENCES']['fasta']} --metrics-file {args.output}/{name}.Sort.MarkDuplicates.metrics --duplicate-tagging-policy 'OpticalOnly' -- --spark-master 'local[{config['DEFAULT']['threads']}]' --spark-verbosity 'INFO'")
 
 markduplicates_job_id = subprocess.check_output(f"sbatch --dependency=afterok:{sorting_job_id} --chdir=$(realpath .) --cpus-per-task={config['DEFAULT']['threads']} --error='%x-%A.txt' --job-name='MarkDup_{name}' --mem={config['DEFAULT']['memory']}G --output='%x-%A.txt' --export=ALL MarkDup_{name}.sh", encoding="utf-8", shell=True).split()[-1]
 
