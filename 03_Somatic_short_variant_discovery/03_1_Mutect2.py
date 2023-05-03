@@ -101,6 +101,6 @@ Index_tumor_job_id = subprocess.check_output(f"sbatch --dependency=afterok:{PASS
 
 with open(f"MAF_{tumor_name}.sh", "w") as sh:
     sh.write("#!/bin/bash\n")
-    sh.write(f"{config['TOOLS']['vcf2maf']} --vep-path {config['TOOLS']['vep']} --vep-data {config['TOOLS']['vep']} --vep-forks {config['DEFAULT']['threads']} --ncbi-build 'GRCh38' --input-vcf {output_directory}/{tumor_name}.PASS.vcf --output {output_directory}/{tumor_name}.PASS.maf --tumor-id {tumor_name} --normal-id {normal_name} --ref-fasta {config['REFERENCES']['fasta']}")
+    sh.write(f"{config['TOOLS']['vcf2maf']} --vep-path {config['TOOLS']['vep']} --vep-data {config['TOOLS']['vep']} --vep-forks {config['DEFAULT']['threads']} --ncbi-build 'GRCh38' --input-vcf {output_directory}/{tumor_name}.PASS.vcf --output {output_directory}/{tumor_name}.PASS.maf --tumor-id {tumor_name} --normal-id {normal_name} --ref-fasta {config['REFERENCES']['fasta']} --vep-overwrite")
 
 MAF_job_id = subprocess.check_output(f"sbatch --dependency=afterok:{Index_tumor_job_id} --chdir=$(realpath .) --cpus-per-task={config['DEFAULT']['threads']} --error='%x-%A.txt' --job-name='MAF_{tumor_name}' --mem={config['DEFAULT']['memory']}G --output='%x-%A.txt' --export=ALL MAF_{tumor_name}.sh", encoding="utf-8", shell=True).split()[-1]
