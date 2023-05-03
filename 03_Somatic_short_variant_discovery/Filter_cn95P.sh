@@ -1,0 +1,2 @@
+#!/bin/bash
+/BiO/Share/Tools/gatk-4.4.0.0/gatk FilterMutectCalls --reference /BiO/Share/Database/gatk-bundle/hg38/Homo_sapiens_assembly38.fasta --variant /BiO/Research/Standard-Pipeline/03_Somatic_short_variant_discovery/cn95P.vcf --output /BiO/Research/Standard-Pipeline/03_Somatic_short_variant_discovery/cn95P.filter.vcf

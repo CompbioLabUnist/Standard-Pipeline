@@ -1,0 +1,2 @@
+#!/bin/bash
+/BiO/Share/Tools/samtools-1.16.1/samtools sort -l 9 --threads 20 -m 4G --reference /BiO/Share/Database/gatk-bundle/hg38/Homo_sapiens_assembly38.fasta --write-index -o /BiO/Research/Standard-Pipeline/02_Data_pre-processing_for_variant_discovery/cn95N.Sort.bam /BiO/Research/Standard-Pipeline/02_Data_pre-processing_for_variant_discovery/cn95N.bam

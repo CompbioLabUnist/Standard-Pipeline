@@ -1,0 +1,2 @@
+#!/bin/bash
+/BiO/Share/Tools/gatk-4.4.0.0/gatk ApplyBQSR --bqsr-recal-file /BiO/Research/Standard-Pipeline/02_Data_pre-processing_for_variant_discovery/cn95N.Sort.MarkDuplicates.BQSR.table --input /BiO/Research/Standard-Pipeline/02_Data_pre-processing_for_variant_discovery/cn95N.Sort.MarkDuplicates.bam --output /BiO/Research/Standard-Pipeline/02_Data_pre-processing_for_variant_discovery/cn95N.Sort.MarkDuplicates.BQSR.bam --reference /BiO/Share/Database/gatk-bundle/hg38/Homo_sapiens_assembly38.fasta --create-output-bam-index true
