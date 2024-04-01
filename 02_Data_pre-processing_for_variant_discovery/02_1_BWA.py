@@ -3,64 +3,68 @@
 02_1_BWA.py: Mapping with BWA
 """
 import argparse
-import configparser
 import os
-import subprocess
+import sys
+from pipeline_utils import PipelineManagerBase
 
-parser = argparse.ArgumentParser()
+sys.path.append(os.path.dirname(os.path.abspath(os.path.dirname(__file__))))
 
-parser.add_argument("input", help="Input FASTQ file", nargs=2)
-parser.add_argument("output", help="Output directory", default=os.getcwd())
-parser.add_argument("-c", "--config", help="config INI file", default="../config.ini")
 
-parser.add_argument("-n", "--dryrun", help="Don't actually run any recipe; just make .SH only", default=False, action="store_true")
+class PipelineManager(PipelineManagerBase):
+    def __init__(self, input_files, output, config_file, dryrun):
+        super().__init__(config_file, dryrun, output_dir=output)
+        self.input_files = sorted(input_files)
+        self.name = os.path.basename(self.input_files[0]).split("_")[0]
 
-args = parser.parse_args()
+    def run_bwa(self, dependency_id=None):
+        command = f"{self.config['TOOLS']['bwa']} mem -M -t {self.config['DEFAULT']['threads']} -R '@RG\\tID:{self.name}\\tPL:ILLUMINA\\tLB:{self.name}\\tSM:{self.name}\\tCN:UNIST' -v 3 {self.config['REFERENCES']['fasta']} {self.input_files[0]} {self.input_files[0]} | {self.config['TOOLS']['samtools']} view --bam --with-header --threads {self.config['DEFAULT']['threads']} --reference {self.config['REFERENCES']['fasta']} --output {self.output_dir}/{self.name}.bam"
+        self.create_sh("BWA", command)
+        return self.submit_job("BWA")
 
-config = configparser.ConfigParser(interpolation=configparser.ExtendedInterpolation())
-config.read(args.config)
+    def run_sort(self, dependency_id=None):
+        command = f"{self.config['TOOLS']['samtools']} sort -l 9 --threads {self.config['DEFAULT']['threads']} -m {int(self.config['DEFAULT']['memory']) // int(self.config['DEFAULT']['threads'])}G --reference {self.config['REFERENCES']['fasta']} --write-index -o {self.output_dir}/{self.name}.Sort.bam {self.output_dir}/{self.name}.bam"
+        self.create_sh("Sort", command)
+        return self.submit_job("Sort", dependency_id=dependency_id)
 
-args.input.sort()
-name = args.input[0].split("/")[-1].split("_")[0]
-args.output = os.path.realpath(args.output)
+    def run_mark_duplicates(self, dependency_id=None):
+        command = f"{self.config['TOOLS']['gatk']} MarkDuplicatesSpark --input {self.output_dir}/{self.name}.Sort.bam --output {self.output_dir}/{self.name}.Sort.MarkDuplicates.bam --reference {self.config['REFERENCES']['fasta']} --metrics-file {self.output_dir}/{self.name}.Sort.MarkDuplicates.metrics --duplicate-tagging-policy 'OpticalOnly' -- --spark-master 'local[{self.config['DEFAULT']['threads']}]' --spark-verbosity 'INFO'"
+        self.create_sh("MarkDup", command)
+        return self.submit_job("MarkDup", dependency_id=dependency_id)
 
-# Mapping
-with open(f"BWA_{name}.sh", "w") as sh:
-    sh.write("#!/bin/bash\n")
-    sh.write(f"{config['TOOLS']['bwa']} mem -M -t {config['DEFAULT']['threads']} -R '@RG\\tID:{name}\\tPL:ILLUMINA\\tLB:{name}\\tSM:{name}\\tCN:UNIST' -v 3 {config['REFERENCES']['fasta']} {args.input[0]} {args.input[0]} | {config['TOOLS']['samtools']} view --bam --with-header --threads {config['DEFAULT']['threads']} --reference {config['REFERENCES']['fasta']} --output {args.output}/{name}.bam")
+    def run_bqsr(self, dependency_id=None):
+        known_sites = " ".join([f"--known-sites {site}" for site in self.config["REFERENCES"]["sites"].split(" ")])
+        command = f"{self.config['TOOLS']['gatk']} BaseRecalibrator --input {self.output_dir}/{self.name}.Sort.MarkDuplicates.bam --reference {self.config['REFERENCES']['fasta']} --output {self.output_dir}/{self.name}.Sort.MarkDuplicates.BQSR.table --create-output-bam-index true {known_sites}"
+        self.create_sh("BQSR", command)
+        return self.submit_job("BQSR", dependency_id=dependency_id)
 
-if not args.dryrun:
-    mapping_job_id = subprocess.check_output(f"sbatch --chdir=$(realpath .) --cpus-per-task={config['DEFAULT']['threads']} --error='%x-%A.txt' --job-name='BWA_{name}' --mem={config['DEFAULT']['memory']}G --output='%x-%A.txt' --export=ALL BWA_{name}.sh", encoding="utf-8", shell=True).split()[-1]
+    def run_apply_bqsr(self, dependency_id=None):
+        command = f"{self.config['TOOLS']['gatk']} ApplyBQSR --bqsr-recal-file {self.output_dir}/{self.name}.Sort.MarkDuplicates.BQSR.table --input {self.output_dir}/{self.name}.Sort.MarkDuplicates.bam --output {self.output_dir}/{self.name}.Sort.MarkDuplicates.BQSR.bam --reference {self.config['REFERENCES']['fasta']} --create-output-bam-index true"
+        self.create_sh("ApplyBQSR", command)
+        return self.submit_job("ApplyBQSR", dependency_id=dependency_id)
 
-# Sort
-with open(f"Sort_{name}.sh", "w") as sh:
-    sh.write("#!/bin/bash\n")
-    sh.write(f"{config['TOOLS']['samtools']} sort -l 9 --threads {config['DEFAULT']['threads']} -m {int(config['DEFAULT']['memory']) // int(config['DEFAULT']['threads'])}G --reference {config['REFERENCES']['fasta']} --write-index -o {args.output}/{name}.Sort.bam {args.output}/{name}.bam")
 
-if not args.dryrun:
-    sorting_job_id = subprocess.check_output(f"sbatch --dependency=afterok:{mapping_job_id} --chdir=$(realpath .) --cpus-per-task={config['DEFAULT']['threads']} --error='%x-%A.txt' --job-name='Sort_{name}' --mem={config['DEFAULT']['memory']}G --output='%x-%A.txt' --export=ALL Sort_{name}.sh", encoding="utf-8", shell=True).split()[-1]
+def parse_arguments():
+    parser = argparse.ArgumentParser()
 
-# Mark Duplicates
-with open(f"MarkDup_{name}.sh", "w") as sh:
-    sh.write("#!/bin/bash\n")
-    sh.write(f"{config['TOOLS']['gatk']} MarkDuplicatesSpark --input {args.output}/{name}.Sort.bam --output {args.output}/{name}.Sort.MarkDuplicates.bam --reference {config['REFERENCES']['fasta']} --metrics-file {args.output}/{name}.Sort.MarkDuplicates.metrics --duplicate-tagging-policy 'OpticalOnly' -- --spark-master 'local[{config['DEFAULT']['threads']}]' --spark-verbosity 'INFO'")
+    parser.add_argument("input", help="Input FASTQ file", nargs=2)
+    parser.add_argument("output", help="Output directory", default=os.getcwd())
+    parser.add_argument("-c", "--config", help="config INI file", default="../config.ini")
+    parser.add_argument("-n", "--dryrun", help="Don't actually run any recipe; just make .SH only", default=False, action="store_true")
 
-if not args.dryrun:
-    markduplicates_job_id = subprocess.check_output(f"sbatch --dependency=afterok:{sorting_job_id} --chdir=$(realpath .) --cpus-per-task={config['DEFAULT']['threads']} --error='%x-%A.txt' --job-name='MarkDup_{name}' --mem={config['DEFAULT']['memory']}G --output='%x-%A.txt' --export=ALL MarkDup_{name}.sh", encoding="utf-8", shell=True).split()[-1]
+    return parser.parse_args()
 
-# Base Quality Score Recalibration (BQSR)
-with open(f"BQSR_{name}.sh", "w") as sh:
-    sh.write("#!/bin/bash\n")
-    sh.write(f"{config['TOOLS']['gatk']} BaseRecalibrator --input {args.output}/{name}.Sort.MarkDuplicates.bam --reference {config['REFERENCES']['fasta']} --output {args.output}/{name}.Sort.MarkDuplicates.BQSR.table --create-output-bam-index true")
-    for site in config['REFERENCES']['sites'].split(" "):
-        sh.write(f" --known-sites {site}")
 
-if not args.dryrun:
-    BQSR_job_id = subprocess.check_output(f"sbatch --dependency=afterok:{markduplicates_job_id} --chdir=$(realpath .) --cpus-per-task={config['DEFAULT']['threads']} --error='%x-%A.txt' --job-name='BQSR_{name}' --mem={config['DEFAULT']['memory']}G --output='%x-%A.txt' --export=ALL BQSR_{name}.sh", encoding="utf-8", shell=True).split()[-1]
+def main():
+    args = parse_arguments()
 
-with open(f"ApplyBQSR_{name}.sh", "w") as sh:
-    sh.write("#!/bin/bash\n")
-    sh.write(f"{config['TOOLS']['gatk']} ApplyBQSR --bqsr-recal-file {args.output}/{name}.Sort.MarkDuplicates.BQSR.table --input {args.output}/{name}.Sort.MarkDuplicates.bam --output {args.output}/{name}.Sort.MarkDuplicates.BQSR.bam --reference {config['REFERENCES']['fasta']} --create-output-bam-index true")
+    pipeline = PipelineManager(input_files=args.input, output=args.output, config_file=args.config, dryrun=args.dryrun)
 
-if not args.dryrun:
-    ApplyBQSR_job_id = subprocess.check_output(f"sbatch --dependency=afterok:{BQSR_job_id} --chdir=$(realpath .) --cpus-per-task={config['DEFAULT']['threads']} --error='%x-%A.txt' --job-name='ApplyBQSR_{name}' --mem={config['DEFAULT']['memory']}G --output='%x-%A.txt' --export=ALL ApplyBQSR_{name}.sh", encoding="utf-8", shell=True).split()[-1]
+    mapping_job_id = pipeline.run_bwa()
+    sort_job_id = pipeline.run_sort(dependency_id=mapping_job_id)
+    mark_duplicates_job_id = pipeline.run_mark_duplicates(dependency_id=sort_job_id)
+    bqsr_job_id = pipeline.run_bqsr(dependency_id=mark_duplicates_job_id)
+    apply_bqsr_job_id = pipeline.run_apply_bqsr(dependency_id=bqsr_job_id)
+
+
+if __name__ == "__main__":
+    main()
