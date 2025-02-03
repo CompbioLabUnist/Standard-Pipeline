@@ -22,7 +22,7 @@ class PipelineManager(PipelineManagerBase):
         return self.submit_job("BWA")
 
     def run_sort(self, dependency_id=None):
-        command = f"{self.config['TOOLS']['samtools']} sort -l 9 --threads {self.config['DEFAULT']['threads']} -m {int(self.config['DEFAULT']['memory']) // int(self.config['DEFAULT']['threads'])}G --reference {self.config['REFERENCES']['fasta']} --write-index -o {self.output_dir}/{self.name}.Sort.bam {self.output_dir}/{self.name}.bam"
+        command = f"{self.config['TOOLS']['samtools']} sort -l 9 --threads {self.config['DEFAULT']['threads']} --reference {self.config['REFERENCES']['fasta']} --write-index -o {self.output_dir}/{self.name}.Sort.bam {self.output_dir}/{self.name}.bam"
         self.create_sh("Sort", command)
         return self.submit_job("Sort", dependency_id=dependency_id)
 
