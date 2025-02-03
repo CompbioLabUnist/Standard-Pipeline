@@ -8,6 +8,7 @@ class PipelineManagerBase:
         self.config = self.load_config(config_file)
         self.dryrun = dryrun
         self.name = "sample_name"
+
         if output_dir is None:
             self.output_dir = os.getcwd()
         else:
@@ -41,4 +42,4 @@ class PipelineManagerBase:
         if cpus is None:
             cpus = int(self.config["DEFAULT"]["threads"])
 
-        return subprocess.check_output(f"sbatch {dependency}--chdir=$(realpath .) --cpus-per-task={cpus} --error='{self.output_dir}/stdeo/%x-%A.txt' --job-name='{script_name}_{self.name}' --mem={self.config['DEFAULT']['memory']}G --output='{self.output_dir}/stdeo/%x-%A.txt' --export=ALL {self.output_dir}/sh/{script_name}_{self.name}.sh", encoding="utf-8", shell=True).split()[-1]
+        return subprocess.check_output(f"sbatch {dependency} --chdir=$(realpath .) --cpus-per-task={cpus} --error='{self.output_dir}/stdeo/%x-%A.txt' --job-name='{script_name}_{self.name}' --mem={self.config['DEFAULT']['memory']}G --output='{self.output_dir}/stdeo/%x-%A.txt' --export=ALL --mail-type={self.config['SLURM']['mail_type']} --mail-user={self.config['SLURM']['mail_user']} {self.output_dir}/sh/{script_name}_{self.name}.sh", encoding="utf-8", shell=True).split()[-1]
