@@ -14,9 +14,9 @@ class PipelineManager(PipelineManagerBase):
     def __init__(self, input_files, output, config_file, dryrun):
         super().__init__(config_file, dryrun, output_dir=output)
         self.input_files = sorted(input_files)
-        self.name = os.path.basename(self.input_files[0]).split("_")[0]
+        self.name = self.input_files[0][self.input_files[0].rfind("/") + 1:self.input_files[0].find("_DNA")]
 
-    def run_bwa(self, dependency_id=None):
+    def run_bwa(self):
         command = f"{self.config['TOOLS']['bwa']} mem -M -t {self.config['DEFAULT']['threads']} -R '@RG\\tID:{self.name}\\tPL:ILLUMINA\\tLB:{self.name}\\tSM:{self.name}\\tCN:UNIST' -v 3 {self.config['REFERENCES']['fasta']} {self.input_files[0]} {self.input_files[0]} | {self.config['TOOLS']['samtools']} view --bam --with-header --threads {self.config['DEFAULT']['threads']} --reference {self.config['REFERENCES']['fasta']} --output {self.output_dir}/{self.name}.bam"
         self.create_sh("BWA", command)
         return self.submit_job("BWA")
@@ -59,11 +59,12 @@ def main():
 
     pipeline = PipelineManager(input_files=args.input, output=args.output, config_file=args.config, dryrun=args.dryrun)
 
+    pipeline.create_dir()
     mapping_job_id = pipeline.run_bwa()
     sort_job_id = pipeline.run_sort(dependency_id=mapping_job_id)
     mark_duplicates_job_id = pipeline.run_mark_duplicates(dependency_id=sort_job_id)
     bqsr_job_id = pipeline.run_bqsr(dependency_id=mark_duplicates_job_id)
-    apply_bqsr_job_id = pipeline.run_apply_bqsr(dependency_id=bqsr_job_id)
+    pipeline.run_apply_bqsr(dependency_id=bqsr_job_id)
 
 
 if __name__ == "__main__":

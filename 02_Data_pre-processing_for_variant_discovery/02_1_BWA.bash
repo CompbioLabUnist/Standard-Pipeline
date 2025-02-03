@@ -2,4 +2,4 @@
 set -euo pipefail
 IFS=$'\n\t'
 
-python3 02_1_BWA.py /BiO/Store/Standard-Pipeline/cn95N_S0_L009_R1_001.fastq.gz /BiO/Store/Standard-Pipeline/cn95N_S0_L009_R2_001.fastq.gz .
+python3 -B 02_1_BWA.py $(realpath ../00_Data/WES/C001_TN_DNA_R1.fastq.gz ../00_Data/WES/C001_TN_DNA_R2.fastq.gz) $(realpath .)
