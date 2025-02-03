@@ -1,2 +1,0 @@
-#!/bin/bash
-/usr/bin/perl /BiO/Share/Tools/vcf2maf-1.6.21/vcf2maf.pl --vep-path /BiO/Share/Tools/ensembl-vep-release-108/ --vep-data /BiO/Share/Tools/ensembl-vep-release-108/ --vep-forks 20 --ncbi-build 'GRCh38' --input-vcf /BiO/Research/Standard-Pipeline/03_Somatic_short_variant_discovery/cn95P.PASS.vcf --output /BiO/Research/Standard-Pipeline/03_Somatic_short_variant_discovery/cn95P.PASS.maf --tumor-id cn95P --normal-id cn95N --ref-fasta /BiO/Share/Database/gatk-bundle/hg38/Homo_sapiens_assembly38.fasta --vep-overwrite

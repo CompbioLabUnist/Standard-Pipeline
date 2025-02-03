@@ -1,2 +1,0 @@
-#!/bin/bash
-/BiO/Share/Tools/bwa-0.7.17/bwa mem -M -t 20 -R '@RG\tID:cn95N\tPL:ILLUMINA\tLB:cn95N\tSM:cn95N\tCN:UNIST' -v 3 /BiO/Share/Database/gatk-bundle/hg38/Homo_sapiens_assembly38.fasta /BiO/Store/Standard-Pipeline/cn95N_S0_L009_R1_001.fastq.gz /BiO/Store/Standard-Pipeline/cn95N_S0_L009_R1_001.fastq.gz | /BiO/Share/Tools/samtools-1.16.1/samtools view --bam --with-header --threads 20 --reference /BiO/Share/Database/gatk-bundle/hg38/Homo_sapiens_assembly38.fasta --output /BiO/Research/Standard-Pipeline/02_Data_pre-processing_for_variant_discovery/cn95N.bam

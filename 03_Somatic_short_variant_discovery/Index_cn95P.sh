@@ -1,2 +1,0 @@
-#!/bin/bash
-/BiO/Share/Tools/gatk-4.4.0.0/gatk IndexFeatureFile --input /BiO/Research/Standard-Pipeline/03_Somatic_short_variant_discovery/cn95P.PASS.vcf --output /BiO/Research/Standard-Pipeline/03_Somatic_short_variant_discovery/cn95P.PASS.vcf.idx

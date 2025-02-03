@@ -1,2 +1,0 @@
-#!/bin/bash
-/usr/bin/awk -F '	' '{if($0 ~ /\#/) print; else if($7 == "PASS") print}' /BiO/Research/Standard-Pipeline/03_Somatic_short_variant_discovery/cn95P.filter.vcf > /BiO/Research/Standard-Pipeline/03_Somatic_short_variant_discovery/cn95P.PASS.vcf
