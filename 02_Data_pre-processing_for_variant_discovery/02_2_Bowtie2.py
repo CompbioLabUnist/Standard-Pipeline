@@ -17,7 +17,7 @@ class PipelineManager(PipelineManagerBase):
         self.name = self.input_files[0][self.input_files[0].rfind("/") + 1:self.input_files[0].find("_DNA")]
 
     def run_bowtie2(self):
-        command = f"{self.config['TOOLS']['bowtie2']} --threads {self.config['DEFAULT']['threads']} --rg-id {self.name} --rg 'ID:{self.name}' --rg 'PL:ILLUMINA' --rg 'LB:{self.name}' --rg 'SM:{self.name}' --rg 'CN:UNIST' --time --qc-filter -x {self.config['REFERENCES']['fasta'][:-6]} -1 {self.input_files[0]} -2 {self.input_files[1]} | {self.config['TOOLS']['samtools']} view --bam --with-header --threads {self.config['DEFAULT']['threads']} --reference {self.config['REFERENCES']['fasta']} --output {self.output_dir}/{self.name}.bam"
+        command = f"{self.config['TOOLS']['bowtie2']} --threads {self.config['DEFAULT']['threads']} --rg-id {self.name} --rg 'ID:{self.name}' --rg 'PL:ILLUMINA' --rg 'LB:{self.name}' --rg 'SM:{self.name}' --rg 'CN:UNIST' --time --qc-filter -x {self.config['REFERENCES']['fasta']} -1 {self.input_files[0]} -2 {self.input_files[1]} | {self.config['TOOLS']['samtools']} view --bam --with-header --threads {self.config['DEFAULT']['threads']} --reference {self.config['REFERENCES']['fasta']} --output {self.output_dir}/{self.name}.bam"
         self.create_sh("Bowtie2", command)
         return self.submit_job("Bowtie2")
 
