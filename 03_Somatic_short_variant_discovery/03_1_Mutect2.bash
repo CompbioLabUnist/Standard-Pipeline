@@ -2,4 +2,4 @@
 set -euo pipefail
 #IFS=$'\n\t'
 
-python3 -B 03_1_Mutect2.py /BiO/Research/Standard-Pipeline/02_Data_pre-processing_for_variant_discovery/cn95N.Sort.MarkDuplicates.BQSR.bam /BiO/Research/Standard-Pipeline/02_Data_pre-processing_for_variant_discovery/cn95P.Sort.MarkDuplicates.BQSR.bam cn95.maf -p
+python3 -B 03_1_Mutect2.py $(realpath ../02_Data_pre-processing_for_variant_discovery/C001_TN.Sort.MarkDuplicates.BQSR.bam ../02_Data_pre-processing_for_variant_discovery/C001_TT.Sort.MarkDuplicates.BQSR.bam) $(realpath ./cn95.maf)

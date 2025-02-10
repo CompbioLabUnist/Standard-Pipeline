@@ -95,14 +95,14 @@ def main():
         panel_of_normals_filter_job_id = pipeline.run_filter(make_panel_of_normals=True, dependency_id=panel_of_normals_mutect_job_id)
         panel_of_normals_pass_job_id = pipeline.run_pass(make_panel_of_normals=True, dependency_id=panel_of_normals_filter_job_id)
         panel_of_normals_index_job_id = pipeline.run_index(make_panel_of_normals=True, dependency_id=panel_of_normals_pass_job_id)
-        panel_of_normals_DB_job_id = pipeline.run_database(dependency_id=panel_of_normals_index_job_id)
-        create_panel_of_normals_job_id = pipeline.run_create_panel_of_normals(dependency_id=panel_of_normals_DB_job_id)
+        panel_of_normals_db_job_id = pipeline.run_database(dependency_id=panel_of_normals_index_job_id)
+        create_panel_of_normals_job_id = pipeline.run_create_panel_of_normals(dependency_id=panel_of_normals_db_job_id)
 
     mutect_job_id = pipeline.run_mutect(dependency_id=create_panel_of_normals_job_id) if pipeline.panel_of_normals else pipeline.run_mutect()
     filter_job_id = pipeline.run_filter(dependency_id=mutect_job_id)
     pass_job_id = pipeline.run_pass(dependency_id=filter_job_id)
     index_job_id = pipeline.run_index(dependency_id=pass_job_id)
-    maf_job_id = pipeline.run_maf(dependency_id=index_job_id)
+    pipeline.run_maf(dependency_id=index_job_id)
 
 
 if __name__ == "__main__":
