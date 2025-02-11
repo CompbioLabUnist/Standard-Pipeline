@@ -23,12 +23,12 @@ class PipelineManager(PipelineManagerBase):
         return self.submit_job("HaplotypeCaller", dependency_id=dependency_id)
 
     def run_database(self, dependency_id=None):
-        command = f"{self.config['TOOLS']['gatk']} GenomicsDBImport --java-options \"{self.config['DEFAULT']['java_options']}\" --reference {self.config['REFERENCES']['fasta']} --genomicsdb-workspace-path {self.output_dir}/DB --variant {self.output_dir}/{self.name}.vcf --intervals {self.config['REFERENCES']['intervals']} --reader-threads {self.config['DEFAULT']['threads']} --max-num-intervals-to-import-in-parallel {self.config['DEFAULT']['threads']} --overwrite-existing-genomicsdb-workspace true"
+        command = f"{self.config['TOOLS']['gatk']} GenomicsDBImport --java-options \"{self.config['DEFAULT']['java_options']}\" --reference {self.config['REFERENCES']['fasta']} --genomicsdb-workspace-path {self.output_dir}/{self.name}-DB --variant {self.output_dir}/{self.name}.vcf --intervals {self.config['REFERENCES']['intervals']} --reader-threads {self.config['DEFAULT']['threads']} --max-num-intervals-to-import-in-parallel {self.config['DEFAULT']['threads']} --overwrite-existing-genomicsdb-workspace true"
         self.create_sh("DB", command)
         return self.submit_job("DB", dependency_id=dependency_id)
 
     def run_genotypegvcfs(self, dependency_id=None):
-        command = f"{self.config['TOOLS']['gatk']} GenotypeGVCFs --java-options \"{self.config['DEFAULT']['java_options']}\" --reference {self.config['REFERENCES']['fasta']} --variant gendb://{self.output_dir}/DB --output {self.output_dir}/{self.name}.DB.vcf"
+        command = f"{self.config['TOOLS']['gatk']} GenotypeGVCFs --java-options \"{self.config['DEFAULT']['java_options']}\" --reference {self.config['REFERENCES']['fasta']} --variant gendb://{self.output_dir}/{self.name}-DB --output {self.output_dir}/{self.name}.DB.vcf"
         self.create_sh("GenotypeGVCFs", command)
         return self.submit_job("GenotypeGVCFs", dependency_id=dependency_id)
 
@@ -39,7 +39,7 @@ class PipelineManager(PipelineManagerBase):
         elif mode == "INDEL":
             mode_tag = "indel"
             resource = f"--resource:mills,known=false,training=true,truth=true,prior=12.0 {self.config['REFERENCES']['mills']} --resource:dbsnp,known=true,training=false,truth=false,prior=2.0 {self.config['REFERENCES']['dbsnp']} -an QD -an MQRankSum -an ReadPosRankSum -an FS -an SOR -an DP"
-        command = f"{self.config['TOOLS']['gatk']} VariantRecalibrator --java-options \"{self.config['DEFAULT']['java_options']}\" --reference {self.config['REFERENCES']['fasta']} --variant {self.output_dir}/{self.name}.DB.vcf {resource} -mode {mode} --output {self.output_dir}/{self.name}.{mode_tag}.recal --tranches-file {self.output_dir}/{self.name}.{mode_tag}.tranches --rscript-file {self.output_dir}/{self.name}.{mode_tag}.plots.R"
+        command = f"{self.config['TOOLS']['gatk']} VariantRecalibrator --java-options \"{self.config['DEFAULT']['java_options']}\" --reference {self.config['REFERENCES']['fasta']} --variant {self.output_dir}/{self.name}.DB.vcf {resource} -mode {mode} --output {self.output_dir}/{self.name}.{mode_tag}.recal --tranches-file {self.output_dir}/{self.name}.{mode_tag}.tranches"
 
         self.create_sh(f"VariantRecalibrator_{mode}", command)
         return self.submit_job(f"VariantRecalibrator_{mode}", dependency_id=dependency_id)
