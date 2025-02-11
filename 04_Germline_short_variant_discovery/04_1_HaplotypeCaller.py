@@ -99,7 +99,7 @@ def main():
     applyvqsr_indel_job_id = pipeline.run_applyvqsr(mode="INDEL", dependency_id=variantrecalibrator_indel_job_id)
     pass_job_id = pipeline.run_pass(dependency_id=applyvqsr_indel_job_id)
     index_job_id = pipeline.run_index(dependency_id=pass_job_id)
-    maf_job_id = pipeline.run_maf(dependency_id=index_job_id)
+    pipeline.run_maf(dependency_id=index_job_id)
 
 
 if __name__ == "__main__":
