@@ -17,7 +17,7 @@ class PipelineManager(PipelineManagerBase):
         self.output_dir = os.path.dirname(self.output)
 
     def run_reference(self, dependency_id=None):
-        command = f"{self.config['TOOLS']['rsem_directory']}/rsem-prepare-reference --gtf {self.config['REFERENCES']['ref_gene']} --bowtie2 --bowtie2-path {self.config['TOOLS']['bowtie2']} --star --star-path {self.config['TOOLS']['star']} --num-threads {self.config['DEFAULT']['threads']} {self.config['REFERENCES']['fasta']} {self.output}"
+        command = f"{self.config['TOOLS']['rsem_directory']}/rsem-prepare-reference --gtf {self.config['REFERENCES']['ref_gene']} --bowtie2 --bowtie2-path {os.path.dirname(self.config['TOOLS']['bowtie2'])} --star --star-path {self.config['TOOLS']['star']} --num-threads {self.config['DEFAULT']['threads']} {self.config['REFERENCES']['fasta']} {self.output}"
         self.create_sh("Reference", command)
         return self.submit_job("Reference", dependency_id=dependency_id)
 
