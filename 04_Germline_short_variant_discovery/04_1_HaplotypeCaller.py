@@ -2,10 +2,10 @@
 """
 04_1_HaplotypeCaller.py: HaplotypeCaller - Call germline SNPs and indels via local re-assembly of haplotypes
 """
-from pipeline_utils import PipelineManagerBase
 import argparse
 import os
 import sys
+from pipeline_utils import PipelineManagerBase
 sys.path.append(os.path.dirname(os.path.abspath(os.path.dirname(__file__))))
 
 
