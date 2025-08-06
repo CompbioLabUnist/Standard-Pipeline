@@ -13,8 +13,10 @@ sys.path.append(os.path.dirname(os.path.abspath(os.path.dirname(__file__))))
 class PipelineManager(PipelineManagerBase):
     def __init__(self, input_files, output, config_file, dryrun):
         super().__init__(config_file, dryrun, output_dir=output)
+        assert len(self.input_files) == 2, "Input files should be two!!"
         self.input_files = sorted(input_files)
-        self.name = self.input_files[0][self.input_files[0].rfind("/") + 1:self.input_files[0].find("_DNA")]
+        file_name = os.path.basename(self.input_files[0])
+        self.name = file_name[:file_name.find("_DNA")]
 
     def run_bwa(self):
         command = f"{self.config['TOOLS']['bwa']} mem -M -t {self.config['DEFAULT']['threads']} -R '@RG\\tID:{self.name}\\tPL:ILLUMINA\\tLB:{self.name}\\tSM:{self.name}\\tCN:UNIST' -v 3 {self.config['REFERENCES']['fasta']} {self.input_files[0]} {self.input_files[0]} | {self.config['TOOLS']['samtools']} view --bam --with-header --threads {self.config['DEFAULT']['threads']} --reference {self.config['REFERENCES']['fasta']} --output {self.output_dir}/{self.name}.bam"
