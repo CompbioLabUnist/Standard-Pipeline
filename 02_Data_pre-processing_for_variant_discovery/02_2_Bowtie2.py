@@ -20,29 +20,29 @@ class PipelineManager(PipelineManagerBase):
 
     def run_bowtie2(self):
         command = f"{self.config['TOOLS']['bowtie2']} --threads {self.config['DEFAULT']['threads']} --rg-id {self.name} --rg 'ID:{self.name}' --rg 'PL:ILLUMINA' --rg 'LB:{self.name}' --rg 'SM:{self.name}' --rg 'CN:UNIST' --time --qc-filter -x {self.config['REFERENCES']['fasta']} -1 {self.input_files[0]} -2 {self.input_files[1]} | {self.config['TOOLS']['samtools']} view --bam --with-header --threads {self.config['DEFAULT']['threads']} --reference {self.config['REFERENCES']['fasta']} --output {self.output_dir}/{self.name}.bam"
-        self.create_sh("Bowtie2", command)
-        return self.submit_job("Bowtie2")
+        self.create_sh("2-1.Bowtie2", command)
+        return self.submit_job("2-1.Bowtie2")
 
     def run_sort(self, dependency_id=None):
         command = f"{self.config['TOOLS']['samtools']} sort -l 9 --threads {self.config['DEFAULT']['threads']} --reference {self.config['REFERENCES']['fasta']} --write-index -o {self.output_dir}/{self.name}.Sort.bam {self.output_dir}/{self.name}.bam"
-        self.create_sh("Sort", command)
-        return self.submit_job("Sort", dependency_id=dependency_id)
+        self.create_sh("2-2.Sort", command)
+        return self.submit_job("2-2.Sort", dependency_id=dependency_id)
 
     def run_mark_duplicates(self, dependency_id=None):
         command = f"{self.config['TOOLS']['gatk']} MarkDuplicatesSpark --input {self.output_dir}/{self.name}.Sort.bam --output {self.output_dir}/{self.name}.Sort.MarkDuplicates.bam --reference {self.config['REFERENCES']['fasta']} --metrics-file {self.output_dir}/{self.name}.Sort.MarkDuplicates.metrics --duplicate-tagging-policy 'OpticalOnly' -- --spark-master 'local[{self.config['DEFAULT']['threads']}]' --spark-verbosity 'INFO'"
-        self.create_sh("MarkDup", command)
-        return self.submit_job("MarkDup", dependency_id=dependency_id)
+        self.create_sh("2-3.MarkDup", command)
+        return self.submit_job("2-3.MarkDup", dependency_id=dependency_id)
 
     def run_bqsr(self, dependency_id=None):
         known_sites = " ".join([f"--known-sites {site}" for site in self.config["REFERENCES"]["sites"].split(" ")])
         command = f"{self.config['TOOLS']['gatk']} BaseRecalibrator --input {self.output_dir}/{self.name}.Sort.MarkDuplicates.bam --reference {self.config['REFERENCES']['fasta']} --output {self.output_dir}/{self.name}.Sort.MarkDuplicates.BQSR.table --create-output-bam-index true {known_sites}"
-        self.create_sh("BQSR", command)
-        return self.submit_job("BQSR", dependency_id=dependency_id)
+        self.create_sh("2-4.BQSR", command)
+        return self.submit_job("2-4.BQSR", dependency_id=dependency_id)
 
     def run_apply_bqsr(self, dependency_id=None):
         command = f"{self.config['TOOLS']['gatk']} ApplyBQSR --bqsr-recal-file {self.output_dir}/{self.name}.Sort.MarkDuplicates.BQSR.table --input {self.output_dir}/{self.name}.Sort.MarkDuplicates.bam --output {self.output_dir}/{self.name}.Sort.MarkDuplicates.BQSR.bam --reference {self.config['REFERENCES']['fasta']} --create-output-bam-index true"
-        self.create_sh("ApplyBQSR", command)
-        return self.submit_job("ApplyBQSR", dependency_id=dependency_id)
+        self.create_sh("2-5.ApplyBQSR", command)
+        return self.submit_job("2-5.ApplyBQSR", dependency_id=dependency_id)
 
 
 def parse_arguments():
