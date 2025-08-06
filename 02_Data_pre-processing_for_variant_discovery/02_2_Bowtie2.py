@@ -13,7 +13,7 @@ sys.path.append(os.path.dirname(os.path.abspath(os.path.dirname(__file__))))
 class PipelineManager(PipelineManagerBase):
     def __init__(self, input_files, output, config_file, dryrun):
         super().__init__(config_file, dryrun, output_dir=output)
-        assert len(self.input_files) == 2, "Input files should be two!!"
+        assert len(input_files) == 2, "Input files should be two!!"
         self.input_files = sorted(input_files)
         file_name = os.path.basename(self.input_files[0])
         self.name = file_name[:file_name.find("_DNA")]
