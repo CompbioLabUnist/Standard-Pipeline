@@ -5,12 +5,12 @@ https://gatk.broadinstitute.org/hc/en-us/articles/360035535912-Data-pre-processi
 
 ## Raw mapped read
 ### BWA (Recommended)
-DOI: 10.1093/bioinformatics/btp324
+- DOI: [10.1093/bioinformatics/btp324](https://doi.org/10.1093/bioinformatics/btp324)
 
 ### Bowtie2
-DOI: 10.1093/bioinformatics/bty648
-DOI: 10.1038/nmeth.1923
-DOI: 10.1186/gb-2009-10-3-r25
+- DOI: [10.1093/bioinformatics/bty648](https://doi.org/10.1093/bioinformatics/bty648)
+- DOI: [10.1038/nmeth.1923](https://doi.org/10.1038/nmeth.1923)
+- DOI: [10.1186/gb-2009-10-3-r25](https://doi.org/10.1186/gb-2009-10-3-r25)
 
 ## Sort
 
