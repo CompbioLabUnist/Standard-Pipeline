@@ -14,8 +14,8 @@ class PipelineManager(PipelineManagerBase):
     def __init__(self, input_files, output, config_file, dryrun):
         super().__init__(config_file, dryrun, output_dir=output)
         self.input_files = sorted(input_files)
-
-        self.name = self.input_files[0][self.input_files[0].rfind("/") + 1:self.input_files[0].find("_DNA")]
+        file_name = os.path.basename(input_files[0])
+        self.name = file_name[:file_name.rfind("_DNA")]
 
     def run_fastqc(self):
         command = f"{self.config['TOOLS']['fastqc']} --outdir {self.output_dir} --format fastq --noextract --threads {self.config['DEFAULT']['threads']} {self.input_files[0]}"
