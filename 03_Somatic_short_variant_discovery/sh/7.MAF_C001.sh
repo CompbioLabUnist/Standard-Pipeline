@@ -1,0 +1,2 @@
+#!/bin/bash
+/usr/bin/perl /BiO/Share/Tools/vcf2maf-1.6.21/vcf2maf.pl --vep-path /BiO/Share/Tools/ensembl-vep-release-110.1/ --vep-data /BiO/Share/Tools/ensembl-vep-release-110.1/ --vep-forks 30 --ncbi-build 'GRCh38' --input-vcf /BiO/Teach/Standard-Pipeline/03_Somatic_short_variant_discovery/C001.PASS.vcf --output /BiO/Teach/Standard-Pipeline/03_Somatic_short_variant_discovery/C001.PASS.maf --tumor-id C001_TT --normal-id C001_TN --ref-fasta /BiO/Share/Tools/gatk-bundle/hg38/Homo_sapiens_assembly38.fasta --vep-overwrite

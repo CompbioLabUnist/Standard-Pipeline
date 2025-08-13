@@ -1,0 +1,2 @@
+#!/bin/bash
+/BiO/Share/Tools/gatk-4.6.1.0/gatk FilterMutectCalls --java-options "-XX:+UseSerialGC -Xmx55g" --reference /BiO/Share/Tools/gatk-bundle/hg38/Homo_sapiens_assembly38.fasta --variant /BiO/Teach/Standard-Pipeline/03_Somatic_short_variant_discovery/C001.vcf --output /BiO/Teach/Standard-Pipeline/03_Somatic_short_variant_discovery/C001.filter.vcf
