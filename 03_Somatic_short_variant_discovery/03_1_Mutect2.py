@@ -33,41 +33,41 @@ class PipelineManager(PipelineManagerBase):
                 panel_of_normals_path = f"--panel-of-normals {self.output_dir}/panel_of_normals.vcf.gz"
 
         command = f"{self.config['TOOLS']['gatk']} Mutect2 --java-options \"{self.config['DEFAULT']['java_options']}\" --reference {self.config['REFERENCES']['fasta']} --input {self.normal} {input_tumor}--output {self.output_dir}/{self.name}{panel_of_normals_label}.vcf {panel_of_normals_path}--native-pair-hmm-threads {self.config['DEFAULT']['threads']} --max-mnp-distance 0"
-        self.create_sh(f"Mutect{panel_of_normals_label}", command)
-        return self.submit_job(f"Mutect{panel_of_normals_label}", dependency_id=dependency_id)
+        self.create_sh(f"1.Mutect{panel_of_normals_label}", command)
+        return self.submit_job(f"1.Mutect{panel_of_normals_label}", dependency_id=dependency_id)
 
     def run_filter(self, make_panel_of_normals=False, dependency_id=None):
         panel_of_normals_label = "_panel_of_normals" if make_panel_of_normals else ""
         command = f"{self.config['TOOLS']['gatk']} FilterMutectCalls --java-options \"{self.config['DEFAULT']['java_options']}\" --reference {self.config['REFERENCES']['fasta']} --variant {self.output_dir}/{self.name}{panel_of_normals_label}.vcf --output {self.output_dir}/{self.name}{panel_of_normals_label}.filter.vcf"
-        self.create_sh(f"Filter{panel_of_normals_label}", command)
-        return self.submit_job(f"Filter{panel_of_normals_label}", dependency_id=dependency_id, cpus=1)
+        self.create_sh(f"2.Filter{panel_of_normals_label}", command)
+        return self.submit_job(f"2.Filter{panel_of_normals_label}", dependency_id=dependency_id, cpus=1)
 
     def run_pass(self, make_panel_of_normals=False, dependency_id=None):
         panel_of_normals_label = "_panel_of_normals" if make_panel_of_normals else ""
         command = f"{self.config['TOOLS']['awk']} -F '\t' '{{if($0 ~ /\\#/) print; else if($7 == \"PASS\") print}}' {self.output_dir}/{self.name}{panel_of_normals_label}.filter.vcf > {self.output_dir}/{self.name}{panel_of_normals_label}.PASS.vcf"
-        self.create_sh(f"PASS{panel_of_normals_label}", command)
-        return self.submit_job(f"PASS{panel_of_normals_label}", dependency_id=dependency_id, cpus=1)
+        self.create_sh(f"3.PASS{panel_of_normals_label}", command)
+        return self.submit_job(f"3.PASS{panel_of_normals_label}", dependency_id=dependency_id, cpus=1)
 
     def run_index(self, make_panel_of_normals=False, dependency_id=None):
         panel_of_normals_label = "_panel_of_normals" if make_panel_of_normals else ""
         command = f"{self.config['TOOLS']['gatk']} IndexFeatureFile --java-options \"{self.config['DEFAULT']['java_options']}\" --input {self.output_dir}/{self.name}{panel_of_normals_label}.PASS.vcf --output {self.output_dir}/{self.name}{panel_of_normals_label}.PASS.vcf.idx"
-        self.create_sh(f"Index{panel_of_normals_label}", command)
-        return self.submit_job(f"Index{panel_of_normals_label}", dependency_id=dependency_id, cpus=1)
+        self.create_sh(f"4.Index{panel_of_normals_label}", command)
+        return self.submit_job(f"4.Index{panel_of_normals_label}", dependency_id=dependency_id, cpus=1)
 
     def run_database(self, dependency_id=None):
         command = f"{self.config['TOOLS']['gatk']} GenomicsDBImport --java-options \"{self.config['DEFAULT']['java_options']}\" --reference {self.config['REFERENCES']['fasta']} --genomicsdb-workspace-path {self.output_dir}/DB --variant {self.output_dir}/{self.name}_panel_of_normals.PASS.vcf --intervals {self.config['REFERENCES']['intervals']} --reader-threads {self.config['DEFAULT']['threads']} --max-num-intervals-to-import-in-parallel {self.config['DEFAULT']['threads']} --overwrite-existing-genomicsdb-workspace true"
-        self.create_sh("DB", command)
-        return self.submit_job("DB", dependency_id=dependency_id)
+        self.create_sh("5.DB", command)
+        return self.submit_job("5.DB", dependency_id=dependency_id)
 
     def run_create_panel_of_normals(self, dependency_id=None):
         command = f"{self.config['TOOLS']['gatk']} CreateSomaticPanelOfNormals --java-options \"{self.config['DEFAULT']['java_options']}\" --reference {self.config['REFERENCES']['fasta']} --variant 'gendb://{self.output_dir}/DB' --output {self.output_dir}/panel_of_normals.vcf.gz"
-        self.create_sh("Create_panel_of_normals", command)
-        return self.submit_job("Create_panel_of_normals", dependency_id=dependency_id, cpus=1)
+        self.create_sh("6.Create_panel_of_normals", command)
+        return self.submit_job("6.Create_panel_of_normals", dependency_id=dependency_id, cpus=1)
 
     def run_maf(self, dependency_id=None):
         command = f"{self.config['TOOLS']['vcf2maf']} --vep-path {self.config['TOOLS']['vep']} --vep-data {self.config['TOOLS']['vep']} --vep-forks {self.config['DEFAULT']['threads']} --ncbi-build 'GRCh38' --input-vcf {self.output_dir}/{self.name}.PASS.vcf --output {self.output_dir}/{self.name}.PASS.maf --tumor-id {self.tumor_name} --normal-id {self.normal_name} --ref-fasta {self.config['REFERENCES']['fasta']} --vep-overwrite"
-        self.create_sh("MAF", command)
-        return self.submit_job("MAF", dependency_id=dependency_id)
+        self.create_sh("7.MAF", command)
+        return self.submit_job("7.MAF", dependency_id=dependency_id)
 
 
 def parse_arguments():
