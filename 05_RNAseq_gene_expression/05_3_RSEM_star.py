@@ -21,8 +21,8 @@ class PipelineManager(PipelineManagerBase):
     def run_star(self, dependency_id=None):
         command = f"{self.config['TOOLS']['rsem_directory']}/rsem-calculate-expression --num-threads {self.config['DEFAULT']['threads']} --calc-pme --calc-ci --star --star-path {os.path.dirname(self.config['TOOLS']['star'])} --star-gzipped-read-file --output-genome-bam --sort-bam-by-coordinate --estimate-rspd --time --paired-end {self.input[0]} {self.input[1]} {self.reference} {self.output}"
 
-        self.create_sh("star", command)
-        return self.submit_job("star", dependency_id=dependency_id)
+        self.create_sh("3-1.star", command)
+        return self.submit_job("3-1.star", dependency_id=dependency_id)
 
 
 def parse_arguments():
