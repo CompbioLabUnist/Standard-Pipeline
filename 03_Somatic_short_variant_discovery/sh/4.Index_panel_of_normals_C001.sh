@@ -1,0 +1,2 @@
+#!/bin/bash
+/BiO/Share/Tools/gatk-4.6.1.0/gatk IndexFeatureFile --java-options "-XX:+UseSerialGC -Xmx55g" --input /BiO/Teach/Standard-Pipeline/03_Somatic_short_variant_discovery/C001_panel_of_normals.PASS.vcf --output /BiO/Teach/Standard-Pipeline/03_Somatic_short_variant_discovery/C001_panel_of_normals.PASS.vcf.idx
