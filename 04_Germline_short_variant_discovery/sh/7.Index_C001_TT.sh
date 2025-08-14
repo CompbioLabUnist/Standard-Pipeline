@@ -1,0 +1,2 @@
+#!/bin/bash
+/BiO/Share/Tools/gatk-4.6.1.0/gatk IndexFeatureFile --input /BiO/Teach/Standard-Pipeline/04_Germline_short_variant_discovery/C001_TT.PASS.vcf --output /BiO/Teach/Standard-Pipeline/04_Germline_short_variant_discovery/C001_TT.PASS.vcf.idx

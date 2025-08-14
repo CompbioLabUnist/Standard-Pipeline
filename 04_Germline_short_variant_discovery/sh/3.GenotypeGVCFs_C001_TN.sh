@@ -1,0 +1,2 @@
+#!/bin/bash
+/BiO/Share/Tools/gatk-4.6.1.0/gatk GenotypeGVCFs --java-options "-XX:+UseSerialGC -Xmx55g" --reference /BiO/Share/Tools/gatk-bundle/hg38/Homo_sapiens_assembly38.fasta --variant gendb:///BiO/Teach/Standard-Pipeline/04_Germline_short_variant_discovery/C001_TN-DB --output /BiO/Teach/Standard-Pipeline/04_Germline_short_variant_discovery/C001_TN.DB.vcf
