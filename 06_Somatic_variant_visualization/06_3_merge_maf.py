@@ -36,5 +36,6 @@ def main():
 
     merged_maf.to_csv(args.output, sep="\t")
 
+
 if __name__ == "__main__":
     main()
