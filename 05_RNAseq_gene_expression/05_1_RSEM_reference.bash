@@ -1,5 +1,5 @@
 #!/bin/bash
 set -euo pipefail
-#IFS=$'\n\t'
+IFS=$'\n\t'
 
-python3 -B 05_1_RSEM_reference.py $(realpath hg38)
+python3 -B 05_1_RSEM_reference.py "$(realpath hg38)"
