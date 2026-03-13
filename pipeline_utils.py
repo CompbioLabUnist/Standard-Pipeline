@@ -26,9 +26,28 @@ class PipelineManagerBase:
         if not os.path.exists(f"{self.output_dir}/stdeo"):
             os.makedirs(f"{self.output_dir}/stdeo")
 
-    def create_sh(self, script_name: str, command: str):
+    def create_sh(self, script_name: str, command: str, dependency_id: str | None = None, cpus: int | None = None):
+        dependency = ""
+        if dependency_id:
+            dependency = f"--dependency=afterok:{dependency_id} "
+
+        if cpus is None:
+            cpus = int(self.config["DEFAULT"]["threads"])
+
         with open(f"{self.output_dir}/sh/{script_name}_{self.name}.sh", "w") as sh:
             sh.write("#!/bin/bash\n")
+            sh.write(f"#SBATCH --cpus-per-task={cpus}\n")
+            sh.write(f"#SBATCH --error='{self.output_dir}/stdeo/%x-%A.txt'\n")
+            sh.write(f"#SBATCH --output='{self.output_dir}/stdeo/%x-%A.txt'\n")
+            sh.write(f"#SBATCH --job-name='{script_name}_{self.name}'\n")
+            sh.write(f"#SBATCH --mem={self.config['DEFAULT']['memory']}G\n")
+            sh.write("#SBATCH --export=ALL\n")
+            sh.write(f"#SBATCH --mail-type={self.config['SLURM']['mail_type']}\n")
+            sh.write(f"#SBATCH --mail-user={self.config['SLURM']['mail_user']}\n")
+
+            if dependency_id:
+                sh.write(f"#SBATCH {dependency}\n")
+
             sh.write(command)
 
     def submit_job(self, script_name, dependency_id: str | None = None, cpus: int | None = None):
