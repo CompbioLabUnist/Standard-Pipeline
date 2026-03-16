@@ -19,7 +19,7 @@ class PipelineManager(PipelineManagerBase):
         self.name = file_name[:file_name.find("_DNA")]
 
     def run_bwa(self):
-        command = f"{self.config['TOOLS']['bwa']} mem -M -t {self.config['DEFAULT']['threads']} -R '@RG\\tID:{self.name}\\tPL:ILLUMINA\\tLB:{self.name}\\tSM:{self.name}\\tCN:UNIST' -v 3 {self.config['REFERENCES']['fasta']} {self.input_files[0]} {self.input_files[0]} | {self.config['TOOLS']['samtools']} view --bam --with-header --threads {self.config['DEFAULT']['threads']} --reference {self.config['REFERENCES']['fasta']} --output {self.output_dir}/{self.name}.bam"
+        command = f"{self.config['TOOLS']['bwa']} mem -M -t {self.config['DEFAULT']['threads']} -R '@RG\\tID:{self.name}\\tPL:ILLUMINA\\tLB:{self.name}\\tSM:{self.name}\\tCN:UNIST' -v 3 {self.config['REFERENCES']['fasta']} {self.input_files[0]} {self.input_files[1]} | {self.config['TOOLS']['samtools']} view --bam --with-header --threads {self.config['DEFAULT']['threads']} --reference {self.config['REFERENCES']['fasta']} --output {self.output_dir}/{self.name}.bam"
         self.create_sh("1-1.BWA", command)
         return self.submit_job("1-1.BWA")
 
