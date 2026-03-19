@@ -29,7 +29,7 @@ class PipelineManager(PipelineManagerBase):
         return self.submit_job("1-2.Sort", dependency_id=dependency_id)
 
     def run_mark_duplicates(self, dependency_id=None):
-        command = f"{self.config['TOOLS']['gatk']} MarkDuplicatesSpark --input {self.output_dir}/{self.name}.Sort.bam --output {self.output_dir}/{self.name}.Sort.MarkDuplicates.bam --reference {self.config['REFERENCES']['fasta']} --metrics-file {self.output_dir}/{self.name}.Sort.MarkDuplicates.metrics --duplicate-tagging-policy 'OpticalOnly' -- --spark-master 'local[{self.config['DEFAULT']['threads']}]' --spark-verbosity 'INFO'"
+        command = f"{self.config['TOOLS']['gatk']} MarkDuplicatesSpark --input {self.output_dir}/{self.name}.Sort.bam --output {self.output_dir}/{self.name}.Sort.MarkDuplicates.bam --reference {self.config['REFERENCES']['fasta']} --metrics-file {self.output_dir}/{self.name}.Sort.MarkDuplicates.metrics --duplicate-tagging-policy 'OpticalOnly' --tmp-dir /BiO/Temp -- --spark-master 'local[{self.config['DEFAULT']['threads']}]' --spark-verbosity 'INFO'"
         self.create_sh("1-3.MarkDup", command)
         return self.submit_job("1-3.MarkDup", dependency_id=dependency_id)
 
