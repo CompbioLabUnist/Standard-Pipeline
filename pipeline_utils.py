@@ -49,6 +49,7 @@ class PipelineManagerBase:
                 sh.write(f"#SBATCH {dependency}\n")
 
             sh.write(command)
+            sh.write("\n")
 
     def submit_job(self, script_name, dependency_id: str | None = None, cpus: int | None = None):
         if self.dryrun:
