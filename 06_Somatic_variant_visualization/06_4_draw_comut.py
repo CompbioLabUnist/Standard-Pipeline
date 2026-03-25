@@ -22,7 +22,7 @@ def main():
     print(input_data)
 
     matplotlib.use("Agg")
-    matplotlib.rcParams.update({"font.size": 50, "axes.labelsize": 50, "axes.titlesize": 75, "xtick.labelsize": 50, "ytick.labelsize": 50, "legend.fontsize": 30, "legend.title_fontsize": 30, "figure.dpi": 300, "pdf.fonttype": 42, "ps.fonttype": 42})
+    matplotlib.rcParams.update({"font.size": 50, "axes.labelsize": 50, "axes.titlesize": 75, "xtick.labelsize": 50, "ytick.labelsize": 50, "legend.fontsize": 30, "legend.title_fontsize": 30, "figure.dpi": 600, "text.color": "black", "font.family": "sans-serif", "pdf.fonttype": 42, "ps.fonttype": 42, "pdf.compression": 9})
 
     sample_list = sorted(set(input_data["Tumor_Sample_Barcode"]))
     print(sample_list)
@@ -41,6 +41,7 @@ def main():
 
     my_comut.plot_comut(x_padding=0.04, y_padding=0.04, tri_padding=0.03, figsize=(32, 24))
     my_comut.add_unified_legend()
+    my_comut.figure.savefig(args.output.replace(".pdf", ".png"), bbox_inches="tight")
     my_comut.figure.savefig(args.output, bbox_inches="tight")
 
 
