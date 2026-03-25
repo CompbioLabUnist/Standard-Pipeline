@@ -18,3 +18,6 @@ Breast cancer data published in [the paper](https://doi.org/10.1038/s12276-023-0
 ```
 ln -sv /BiO/Store/UNIST-ApocrineCarcinoma-SMC-2021-04 00_Data
 ```
+
+## Maintainer
+Jaewoong Lee (jaewoong at unist dot ac dot kr)
