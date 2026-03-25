@@ -12,3 +12,4 @@ https://gatk.broadinstitute.org/hc/en-us/articles/13832710384155-Mutect2
 https://gatk.broadinstitute.org/hc/en-us/articles/13832694001563-FilterMutectCalls
 
 ## VCF >> MAF
+https://github.com/mskcc/vcf2maf
