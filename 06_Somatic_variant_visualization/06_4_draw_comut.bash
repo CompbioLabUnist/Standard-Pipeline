@@ -1,2 +1,2 @@
 #!/bin/bash
-./bin/python3 06_4_draw_comut.py "$(realpath ./merged.tsv)" "$(realpath comut.pdf)"
+python3 06_4_draw_comut.py "$(realpath ./merged.tsv)" "$(realpath comut.pdf)"
