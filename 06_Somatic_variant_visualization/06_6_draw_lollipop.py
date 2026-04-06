@@ -16,11 +16,13 @@ def parse_arguments():
 
 def main():
     args = parse_arguments()
+    print(args.gene)
 
     input_data = pandas.read_csv(args.input, sep="\t", index_col=0)
     print(input_data)
 
     for gene in tqdm.tqdm(args.gene):
+        print(gene)
         gene_data = input_data[(input_data["Hugo_Symbol"] == gene) & ~(input_data["HGVSp_Short"].isna())]
         print(gene_data)
 
@@ -32,7 +34,7 @@ def main():
             proteins += f"{row['HGVSp_Short'][2:]} "
         proteins = proteins.strip()
 
-        os.system(f"/BiO/Share/Tools/lollipops -legend -labels -o {args.output}/{args.gene}.png -dpi=600 -show-motifs {gene} {proteins}")
+        os.system(f"/BiO/Share/Tools/lollipops -legend -labels -o {args.output}/{gene}.png -dpi=600 -show-motifs {gene} {proteins}")
 
 if __name__ == "__main__":
     main()
