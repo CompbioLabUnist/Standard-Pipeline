@@ -32,7 +32,7 @@ def main():
             proteins += f"{row['HGVSp_Short'][2:]} "
         proteins = proteins.strip()
 
-        os.system(f"/BiO/Share/Tools/lollipops -D interpro -legend -labels -o {args.output}/{args.gene}.png -dpi=600 -show-motifs {gene} {proteins}")
+        os.system(f"/BiO/Share/Tools/lollipops -legend -labels -o {args.output}/{args.gene}.png -dpi=600 -show-motifs {gene} {proteins}")
 
 if __name__ == "__main__":
     main()
