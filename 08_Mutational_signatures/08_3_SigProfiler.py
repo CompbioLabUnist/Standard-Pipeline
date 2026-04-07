@@ -21,7 +21,7 @@ class PipelineManager(PipelineManagerBase):
         return self.submit_job("1.install_reference", dependency_id=dependency_id)
 
     def refer_reference(self, dependency_id=None):
-        command = ""
+        command = f"rm -rfv {os.path.realpath(self.input)}/lib/python3.10/site-packages/SigProfilerMatrixGenerator/references/*\n"
         for folder in ["chromosomes", "CNV", "matrix", "SV", "vcf_files"]:
             command += f"ln -sfv /BiO/Teach/Standard-Pipeline/08_Mutational_signatures/lib/python3.10/site-packages/SigProfilerMatrixGenerator/references/{folder} {os.path.realpath(self.input)}/lib/python3.10/site-packages/SigProfilerMatrixGenerator/references/{folder}\n"
 
