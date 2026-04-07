@@ -17,8 +17,8 @@ class PipelineManager(PipelineManagerBase):
 
     def install_reference(self, dependency_id=None):
         command = f"{os.path.realpath('./bin/SigProfilerMatrixGenerator')} install GRCh38"
-        self.create_sh("X.install_reference", command)
-        return self.submit_job("X.install_reference", dependency_id=dependency_id)
+        self.create_sh("1.install_reference", command)
+        return self.submit_job("1.install_reference", dependency_id=dependency_id)
 
     def refer_reference(self, dependency_id=None):
         command = f"ln -sfv /BiO/Teach/Standard-Pipeline/08_Mutational_signatures/lib/python3.10/site-packages/SigProfilerMatrixGenerator/references/matrix {os.path.realpath(self.input)}/lib/python3.10/site-packages/SigProfilerMatrixGenerator/references/matrix\n"
@@ -70,7 +70,7 @@ def main():
 
     pipeline.create_dir()
 
-    refer_job_id = pipeline.refer_reference()
+    refer_job_id = pipeline.install_reference()
     matrix_job_id = pipeline.matrix_generator(dependency_id=refer_job_id)
     extractor_job_id = pipeline.extractor(dependency_id=matrix_job_id)
     pipeline.plotting(dependency_id=extractor_job_id)
