@@ -21,12 +21,10 @@ class PipelineManager(PipelineManagerBase):
         return self.submit_job("X.install_reference", dependency_id=dependency_id)
 
     def refer_reference(self, dependency_id=None):
-        command = f"rm -rfv {os.path.realpath('./lib/python3.10/site-packages/SigProfilerMatrixGenerator/references/matrix')}\n"
-        command += f"ln -sfv /BiO/Teach/Standard-Pipeline/08_Mutational_signatures/lib/python3.10/site-packages/SigProfilerMatrixGenerator/references/matrix {os.path.realpath('./lib/python3.10/site-packages/SigProfilerMatrixGenerator/references/matrix')}\n"
-        command += f"rm -rfv {os.path.realpath('./lib/python3.10/site-packages/SigProfilerMatrixGenerator/references/vcf_files')}\n"
-        command += f"ln -sfv /BiO/Teach/Standard-Pipeline/08_Mutational_signatures/lib/python3.10/site-packages/SigProfilerMatrixGenerator/references/vcf_files {os.path.realpath('./lib/python3.10/site-packages/SigProfilerMatrixGenerator/references/vcf_files')}\n"
+        command = "ln -sfv /BiO/Teach/Standard-Pipeline/08_Mutational_signatures/lib/python3.10/site-packages/SigProfilerMatrixGenerator/references/matrix ./lib/python3.10/site-packages/SigProfilerMatrixGenerator/references/matrix\n"
+        command += "ln -sfv /BiO/Teach/Standard-Pipeline/08_Mutational_signatures/lib/python3.10/site-packages/SigProfilerMatrixGenerator/references/vcf_files ./lib/python3.10/site-packages/SigProfilerMatrixGenerator/references/vcf_files\n"
         command += f"rm -rfv {os.path.realpath('./input')}\n"
-        command += f"mkdir -p {os.path.realpath('./input)')}\n"
+        command += f"mkdir -p {os.path.realpath('./input')}\n"
         command += f"ln -sfv {os.path.realpath('../03_Somatic_short_variant_discovery')}/*.PASS.vcf {os.path.realpath('./input)')}"
 
         self.create_sh("1.refer_reference", command)
