@@ -6,7 +6,7 @@ This is standard pipeline within CompBio@UNIST
 2. Python (.PY) files are for execution
 
 ## Policy
-1. Use long options (starts with --) rather than short options (starts with -) for readability
+1. Use long options (starts with -- double) rather than short options (starts with - single) for readability
 
 ## Data
 Breast cancer data published in [the paper](https://doi.org/10.1038/s12276-023-01030-z).
