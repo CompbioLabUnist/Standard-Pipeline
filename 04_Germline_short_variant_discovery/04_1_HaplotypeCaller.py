@@ -18,17 +18,17 @@ class PipelineManager(PipelineManagerBase):
         self.output_dir = os.path.dirname(self.output)
 
     def run_haplotypecaller(self, dependency_id=None):
-        command = f"{self.config['TOOLS']['gatk']} HaplotypeCaller --java-options \"{self.config['DEFAULT']['java_options']}\" --reference {self.config['REFERENCES']['fasta']} --input {self.input} --output {self.output_dir}/{self.name}.vcf -ERC GVCF --native-pair-hmm-threads {self.config['DEFAULT']['threads']}"
+        command = f"{self.config['TOOLS']['gatk']} HaplotypeCaller --java-options \"{self.config['DEFAULT']['java_options']}\" --reference {self.config['REFERENCES']['fasta']} --input {self.input} --output {self.output_dir}/{self.name}.vcf.gz -ERC GVCF --native-pair-hmm-threads {self.config['DEFAULT']['threads']}"
         self.create_sh("1.HaplotypeCaller", command)
         return self.submit_job("1.HaplotypeCaller", dependency_id=dependency_id)
 
     def run_database(self, dependency_id=None):
-        command = f"{self.config['TOOLS']['gatk']} GenomicsDBImport --java-options \"{self.config['DEFAULT']['java_options']}\" --reference {self.config['REFERENCES']['fasta']} --genomicsdb-workspace-path {self.output_dir}/{self.name}-DB --variant {self.output_dir}/{self.name}.vcf --intervals {self.config['REFERENCES']['intervals']} --reader-threads {self.config['DEFAULT']['threads']} --max-num-intervals-to-import-in-parallel {self.config['DEFAULT']['threads']} --overwrite-existing-genomicsdb-workspace true"
+        command = f"{self.config['TOOLS']['gatk']} GenomicsDBImport --java-options \"{self.config['DEFAULT']['java_options']}\" --reference {self.config['REFERENCES']['fasta']} --genomicsdb-workspace-path {self.output_dir}/{self.name}-DB --variant {self.output_dir}/{self.name}.vcf.gz --intervals {self.config['REFERENCES']['intervals']} --reader-threads {self.config['DEFAULT']['threads']} --max-num-intervals-to-import-in-parallel {self.config['DEFAULT']['threads']} --overwrite-existing-genomicsdb-workspace true"
         self.create_sh("2.DB", command)
         return self.submit_job("2.DB", dependency_id=dependency_id)
 
     def run_genotypegvcfs(self, dependency_id=None):
-        command = f"{self.config['TOOLS']['gatk']} GenotypeGVCFs --java-options \"{self.config['DEFAULT']['java_options']}\" --reference {self.config['REFERENCES']['fasta']} --variant gendb://{self.output_dir}/{self.name}-DB --output {self.output_dir}/{self.name}.DB.vcf"
+        command = f"{self.config['TOOLS']['gatk']} GenotypeGVCFs --java-options \"{self.config['DEFAULT']['java_options']}\" --reference {self.config['REFERENCES']['fasta']} --variant gendb://{self.output_dir}/{self.name}-DB --output {self.output_dir}/{self.name}.DB.vcf.gz"
         self.create_sh("3.GenotypeGVCFs", command)
         return self.submit_job("3.GenotypeGVCFs", dependency_id=dependency_id)
 
@@ -39,35 +39,40 @@ class PipelineManager(PipelineManagerBase):
         elif mode == "INDEL":
             mode_tag = "indel"
             resource = f"--resource:mills,known=false,training=true,truth=true,prior=12.0 {self.config['REFERENCES']['mills']} --resource:dbsnp,known=true,training=false,truth=false,prior=2.0 {self.config['REFERENCES']['dbsnp']} -an QD -an MQRankSum -an ReadPosRankSum -an FS -an SOR -an DP"
-        command = f"{self.config['TOOLS']['gatk']} VariantRecalibrator --java-options \"{self.config['DEFAULT']['java_options']}\" --reference {self.config['REFERENCES']['fasta']} --variant {self.output_dir}/{self.name}.DB.vcf {resource} -mode {mode} --output {self.output_dir}/{self.name}.{mode_tag}.recal --tranches-file {self.output_dir}/{self.name}.{mode_tag}.tranches"
+        else:
+            raise Exception("Something went wrong!!")
+
+        command = f"{self.config['TOOLS']['gatk']} VariantRecalibrator --java-options \"{self.config['DEFAULT']['java_options']}\" --reference {self.config['REFERENCES']['fasta']} --variant {self.output_dir}/{self.name}.DB.vcf.gz {resource} -mode {mode} --output {self.output_dir}/{self.name}.{mode_tag}.recal --tranches-file {self.output_dir}/{self.name}.{mode_tag}.tranches"
 
         self.create_sh(f"4.VariantRecalibrator_{mode}", command)
         return self.submit_job(f"4.VariantRecalibrator_{mode}", dependency_id=dependency_id)
 
     def run_applyvqsr(self, mode=None, dependency_id=None):
         if mode == "SNP":
-            variant = f"{self.output_dir}/{self.name}.DB.vcf"
+            variant = f"{self.output_dir}/{self.name}.DB.vcf.gz"
             mode_tag = "snp"
         elif mode == "INDEL":
-            variant = f"{self.output_dir}/{self.name}.rc.snp.vcf"
+            variant = f"{self.output_dir}/{self.name}.rc.snp.vcf.gz"
             mode_tag = "indel"
+        else:
+            raise Exception("Something went wrong!!")
 
-        command = f"{self.config['TOOLS']['gatk']} ApplyVQSR --java-options \"{self.config['DEFAULT']['java_options']}\" --reference {self.config['REFERENCES']['fasta']} --variant {variant} --output {self.output_dir}/{self.name}.rc.{mode_tag}.vcf -mode {mode} --recal-file {self.output_dir}/{self.name}.{mode_tag}.recal --tranches-file {self.output_dir}/{self.name}.{mode_tag}.tranches --truth-sensitivity-filter-level 99.9 --create-output-variant-index true"
+        command = f"{self.config['TOOLS']['gatk']} ApplyVQSR --java-options \"{self.config['DEFAULT']['java_options']}\" --reference {self.config['REFERENCES']['fasta']} --variant {variant} --output {self.output_dir}/{self.name}.rc.{mode_tag}.vcf.gz -mode {mode} --recal-file {self.output_dir}/{self.name}.{mode_tag}.recal --tranches-file {self.output_dir}/{self.name}.{mode_tag}.tranches --truth-sensitivity-filter-level 99.9 --create-output-variant-index true"
         self.create_sh(f"5.ApplyVQSR_{mode}", command)
         return self.submit_job(f"5.ApplyVQSR_{mode}", dependency_id=dependency_id)
 
     def run_pass(self, dependency_id=None):
-        command = f"{self.config['TOOLS']['awk']} -F '\t' '{{if($0 ~ /\\#/) print; else if($7 == \"PASS\") print}}' {self.output_dir}/{self.name}.rc.indel.vcf > {self.output_dir}/{self.name}.PASS.vcf"
+        command = f"{self.config['TOOLS']['awk']} -F '\t' '{{if($0 ~ /\\#/) print; else if($7 == \"PASS\") print}}' {self.output_dir}/{self.name}.rc.indel.vcf.gz > {self.output_dir}/{self.name}.PASS.vcf.gz"
         self.create_sh("6.PASS", command)
         return self.submit_job("6.PASS", dependency_id=dependency_id, cpus=1)
 
-    def run_index(self, make_panel_of_normals=False, dependency_id=None):
-        command = f"{self.config['TOOLS']['gatk']} IndexFeatureFile --input {self.output_dir}/{self.name}.PASS.vcf --output {self.output_dir}/{self.name}.PASS.vcf.idx"
+    def run_index(self, dependency_id=None):
+        command = f"{self.config['TOOLS']['gatk']} IndexFeatureFile --input {self.output_dir}/{self.name}.PASS.vcf.gz --output {self.output_dir}/{self.name}.PASS.vcf.gz.idx"
         self.create_sh("7.Index", command)
         return self.submit_job("7.Index", dependency_id=dependency_id, cpus=1)
 
     def run_maf(self, dependency_id=None):
-        command = f"{self.config['TOOLS']['vcf2maf']} --vep-path {self.config['TOOLS']['vep']} --vep-data {self.config['TOOLS']['vep']} --vep-forks {self.config['DEFAULT']['threads']} --ncbi-build 'GRCh38' --input-vcf {self.output_dir}/{self.name}.PASS.vcf --output {self.output_dir}/{self.name}.PASS.maf --tumor-id {self.name} --ref-fasta {self.config['REFERENCES']['fasta']} --vep-overwrite"
+        command = f"{self.config['TOOLS']['vcf2maf']} --vep-path {self.config['TOOLS']['vep']} --vep-data {self.config['TOOLS']['vep']} --vep-forks {self.config['DEFAULT']['threads']} --ncbi-build 'GRCh38' --input-vcf {self.output_dir}/{self.name}.PASS.vcf.gz --output {self.output_dir}/{self.name}.PASS.maf --tumor-id {self.name} --ref-fasta {self.config['REFERENCES']['fasta']} --vep-overwrite"
         self.create_sh("8.MAF", command)
         return self.submit_job("8.MAF", dependency_id=dependency_id)
 
