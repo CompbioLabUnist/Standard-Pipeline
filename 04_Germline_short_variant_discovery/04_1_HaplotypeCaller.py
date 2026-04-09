@@ -100,9 +100,7 @@ def main():
     genotypegvcfs_job_id = pipeline.run_genotypegvcfs(dependency_id=db_job_id)
     variantrecalibrator_snp_job_id = pipeline.run_variantrecalibrator(mode="SNP", dependency_id=genotypegvcfs_job_id)
     applyvqsr_snp_job_id = pipeline.run_applyvqsr(mode="SNP", dependency_id=variantrecalibrator_snp_job_id)
-    variantrecalibrator_indel_job_id = pipeline.run_variantrecalibrator(mode="INDEL", dependency_id=applyvqsr_snp_job_id)
-    applyvqsr_indel_job_id = pipeline.run_applyvqsr(mode="INDEL", dependency_id=variantrecalibrator_indel_job_id)
-    pass_job_id = pipeline.run_pass(dependency_id=applyvqsr_indel_job_id)
+    pass_job_id = pipeline.run_pass(dependency_id=applyvqsr_snp_job_id)
     index_job_id = pipeline.run_index(dependency_id=pass_job_id)
     pipeline.run_maf(dependency_id=index_job_id)
 
