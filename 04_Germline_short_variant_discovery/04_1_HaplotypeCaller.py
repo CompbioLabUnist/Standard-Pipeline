@@ -32,42 +32,26 @@ class PipelineManager(PipelineManagerBase):
         self.create_sh("3.GenotypeGVCFs", command)
         return self.submit_job("3.GenotypeGVCFs", dependency_id=dependency_id)
 
-    def run_variantrecalibrator(self, mode=None, dependency_id=None):
-        if mode == "SNP":
-            mode_tag = "snp"
-            resource = f"--resource:hapmap,known=false,training=true,truth=true,prior=15.0 {self.config['REFERENCES']['hapmap']} --resource:omni,known=false,training=true,truth=false,prior=12.0 {self.config['REFERENCES']['omni']} --resource:1000G,known=false,training=true,truth=false,prior=10.0 {self.config['REFERENCES']['1000g']} -an QD -an MQ -an MQRankSum -an ReadPosRankSum -an FS -an SOR"
-        elif mode == "INDEL":
-            mode_tag = "indel"
-            resource = f"--resource:mills,known=false,training=true,truth=true,prior=12.0 {self.config['REFERENCES']['mills']} --resource:dbsnp,known=true,training=false,truth=false,prior=2.0 {self.config['REFERENCES']['dbsnp']} -an QD -an MQRankSum -an ReadPosRankSum -an FS -an SOR -an DP"
-        else:
-            raise Exception("Something went wrong!!")
+    def run_variantrecalibrator(self, dependency_id=None):
+        resource = f"--resource:hapmap,known=false,training=true,truth=true,prior=15.0 {self.config['REFERENCES']['hapmap']} --resource:omni,known=false,training=true,truth=false,prior=12.0 {self.config['REFERENCES']['omni']} --resource:1000G,known=false,training=true,truth=false,prior=10.0 {self.config['REFERENCES']['1000g']} -an QD -an MQ -an MQRankSum -an ReadPosRankSum -an FS -an SOR"
 
-        command = f"{self.config['TOOLS']['gatk']} VariantRecalibrator --java-options \"{self.config['DEFAULT']['java_options']}\" --reference {self.config['REFERENCES']['fasta']} --variant {self.output_dir}/{self.name}.DB.vcf.gz {resource} -mode {mode} --output {self.output_dir}/{self.name}.{mode_tag}.recal --tranches-file {self.output_dir}/{self.name}.{mode_tag}.tranches"
+        command = f"{self.config['TOOLS']['gatk']} VariantRecalibrator --java-options \"{self.config['DEFAULT']['java_options']}\" --reference {self.config['REFERENCES']['fasta']} --variant {self.output_dir}/{self.name}.DB.vcf.gz {resource} -mode 'BOTH' --output {self.output_dir}/{self.name}.VQSR.recal --tranches-file {self.output_dir}/{self.name}.VQSR.tranches"
 
-        self.create_sh(f"4.VariantRecalibrator_{mode}", command)
-        return self.submit_job(f"4.VariantRecalibrator_{mode}", dependency_id=dependency_id)
+        self.create_sh("4.VariantRecalibrator", command)
+        return self.submit_job("4.VariantRecalibrator", dependency_id=dependency_id)
 
-    def run_applyvqsr(self, mode=None, dependency_id=None):
-        if mode == "SNP":
-            variant = f"{self.output_dir}/{self.name}.DB.vcf.gz"
-            mode_tag = "snp"
-        elif mode == "INDEL":
-            variant = f"{self.output_dir}/{self.name}.rc.snp.vcf.gz"
-            mode_tag = "indel"
-        else:
-            raise Exception("Something went wrong!!")
-
-        command = f"{self.config['TOOLS']['gatk']} ApplyVQSR --java-options \"{self.config['DEFAULT']['java_options']}\" --reference {self.config['REFERENCES']['fasta']} --variant {variant} --output {self.output_dir}/{self.name}.rc.{mode_tag}.vcf.gz -mode {mode} --recal-file {self.output_dir}/{self.name}.{mode_tag}.recal --tranches-file {self.output_dir}/{self.name}.{mode_tag}.tranches --truth-sensitivity-filter-level 99.9 --create-output-variant-index true"
-        self.create_sh(f"5.ApplyVQSR_{mode}", command)
-        return self.submit_job(f"5.ApplyVQSR_{mode}", dependency_id=dependency_id)
+    def run_applyvqsr(self, dependency_id=None):
+        command = f"{self.config['TOOLS']['gatk']} ApplyVQSR --java-options \"{self.config['DEFAULT']['java_options']}\" --reference {self.config['REFERENCES']['fasta']} --variant {self.output_dir}/{self.name}.DB.vcf.gz --output {self.output_dir}/{self.name}.VQSR.vcf.gz -mode 'BOTH' --recal-file {self.output_dir}/{self.name}.VQSR.recal --tranches-file {self.output_dir}/{self.name}.VQSR.tranches --truth-sensitivity-filter-level 99.9 --create-output-variant-index true"
+        self.create_sh("5.ApplyVQSR", command)
+        return self.submit_job("5.ApplyVQSR", dependency_id=dependency_id)
 
     def run_pass(self, dependency_id=None):
-        command = f"{self.config['TOOLS']['awk']} -F '\t' '{{if($0 ~ /\\#/) print; else if($7 == \"PASS\") print}}' {self.output_dir}/{self.name}.rc.indel.vcf.gz > {self.output_dir}/{self.name}.PASS.vcf.gz"
+        command = f"{self.config['TOOLS']['gzip']} --stdout --decompress {self.output_dir}/{self.name}.VQSR.vcf.gz | {self.config['TOOLS']['awk']} -F '\t' '{{if($0 ~ /\\#/) print; else if($7 == \"PASS\") print}}' | {self.config['TOOLS']['bgzip']} --stdout --force --compress-level 9 --threads {self.config['DEFAULT']['threads']} > {self.output_dir}/{self.name}.VQSR.PASS.vcf.gz"
         self.create_sh("6.PASS", command)
         return self.submit_job("6.PASS", dependency_id=dependency_id, cpus=1)
 
     def run_index(self, dependency_id=None):
-        command = f"{self.config['TOOLS']['gatk']} IndexFeatureFile --input {self.output_dir}/{self.name}.PASS.vcf.gz --output {self.output_dir}/{self.name}.PASS.vcf.gz.idx"
+        command = f"{self.config['TOOLS']['tabix']} --preset vcf --force --threads {self.config['DEFAULT']['threads']} {self.output_dir}/{self.name}.VQSR.PASS.vcf.gz"
         self.create_sh("7.Index", command)
         return self.submit_job("7.Index", dependency_id=dependency_id, cpus=1)
 
@@ -98,8 +82,8 @@ def main():
     haplotypecaller_job_id = pipeline.run_haplotypecaller()
     db_job_id = pipeline.run_database(dependency_id=haplotypecaller_job_id)
     genotypegvcfs_job_id = pipeline.run_genotypegvcfs(dependency_id=db_job_id)
-    variantrecalibrator_snp_job_id = pipeline.run_variantrecalibrator(mode="SNP", dependency_id=genotypegvcfs_job_id)
-    applyvqsr_snp_job_id = pipeline.run_applyvqsr(mode="SNP", dependency_id=variantrecalibrator_snp_job_id)
+    variantrecalibrator_snp_job_id = pipeline.run_variantrecalibrator(dependency_id=genotypegvcfs_job_id)
+    applyvqsr_snp_job_id = pipeline.run_applyvqsr(dependency_id=variantrecalibrator_snp_job_id)
     pass_job_id = pipeline.run_pass(dependency_id=applyvqsr_snp_job_id)
     index_job_id = pipeline.run_index(dependency_id=pass_job_id)
     pipeline.run_maf(dependency_id=index_job_id)
