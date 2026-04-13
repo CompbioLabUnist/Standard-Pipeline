@@ -16,7 +16,10 @@ class PipelineManager(PipelineManagerBase):
         self.name = "Signatures"
 
     def install_reference(self, dependency_id=None):
-        command = f"{os.path.realpath('./bin/SigProfilerMatrixGenerator')} install GRCh38"
+        command = f"{os.path.realpath('./bin/SigProfilerMatrixGenerator')} install GRCh38\n"
+        command += f"rm -rfv {os.path.realpath(self.input)}/input\n"
+        command += f"mkdir -p {os.path.realpath(self.input)}/input\n"
+        command += f"ln -sfv {os.path.realpath('../03_Somatic_short_variant_discovery')}/*.PASS.vcf {os.path.realpath(self.input)}/input"
         self.create_sh("1.install_reference", command)
         return self.submit_job("1.install_reference", dependency_id=dependency_id)
 
