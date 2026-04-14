@@ -48,10 +48,10 @@ class PipelineManager(PipelineManagerBase):
         return self.submit_job("3.extractor", dependency_id=dependency_id)
 
     def plotting(self, dependency_id=None):
-        command = f"{os.path.realpath('./bin/SigProfilerPlotting')} plotSBS --savefig_format 'png' --dpi 600 {os.path.realpath('./SBS')} {self.output}/Plot {self.name} '96'\n"
-        command += f"{os.path.realpath('./bin/SigProfilerPlotting')} plotSBS --savefig_format 'png' --dpi 600 {os.path.realpath('./SBS')} {self.output}/'Plot' {self.name} '6'\n"
-        command += f"{os.path.realpath('./bin/SigProfilerPlotting')} plotDBS --savefig_format 'png' --dpi 600 {os.path.realpath('./DBS')} {self.output}/'Plot' {self.name} '78'\n"
-        command += f"{os.path.realpath('./bin/SigProfilerPlotting')} plotID --savefig_format 'png' --dpi 600 {os.path.realpath('./ID')} {self.output}/'Plot' {self.name} '28'"
+        command = f"{os.path.realpath('./bin/SigProfilerPlotting')} plotSBS --savefig_format 'png' --dpi 600 {os.path.realpath('./SBS/Signatures.SBS96.exome')} {self.output}/Plot {self.name} '96'\n"
+        command += f"{os.path.realpath('./bin/SigProfilerPlotting')} plotSBS --savefig_format 'png' --dpi 600 {os.path.realpath('./SBS/Signatures.SBS6.exome')} {self.output}/'Plot' {self.name} '6'\n"
+        command += f"{os.path.realpath('./bin/SigProfilerPlotting')} plotDBS --savefig_format 'png' --dpi 600 {os.path.realpath('./DBS/Signatures.DBS78.exome')} {self.output}/'Plot' {self.name} '78'\n"
+        command += f"{os.path.realpath('./bin/SigProfilerPlotting')} plotID --savefig_format 'png' --dpi 600 {os.path.realpath('./ID/Signatures.ID28.exome')} {self.output}/'Plot' {self.name} '28'"
 
         self.create_sh("4.plotting", command)
         return self.submit_job("4.plotting", dependency_id=dependency_id)
