@@ -51,12 +51,15 @@ class PipelineManager(PipelineManagerBase):
         return self.submit_job("6.PASS", dependency_id=dependency_id, cpus=1)
 
     def run_index(self, dependency_id=None):
-        command = f"{self.config['TOOLS']['tabix']} --preset vcf --force --threads {self.config['DEFAULT']['threads']} {self.output_dir}/{self.name}.VQSR.PASS.vcf.gz"
+        command = f"{self.config['TOOLS']['tabix']} --preset vcf --force {self.output_dir}/{self.name}.VQSR.PASS.vcf.gz"
         self.create_sh("7.Index", command)
         return self.submit_job("7.Index", dependency_id=dependency_id, cpus=1)
 
     def run_maf(self, dependency_id=None):
-        command = f"{self.config['TOOLS']['vcf2maf']} --vep-path {self.config['TOOLS']['vep']} --vep-data {self.config['TOOLS']['vep']} --vep-forks {self.config['DEFAULT']['threads']} --ncbi-build 'GRCh38' --input-vcf {self.output_dir}/{self.name}.PASS.vcf.gz --output {self.output_dir}/{self.name}.PASS.maf --tumor-id {self.name} --ref-fasta {self.config['REFERENCES']['fasta']} --vep-overwrite"
+        command = f"{self.config['TOOLS']['gzip']} --decompress --force --keep {self.output_dir}/{self.name}.VQSR.PASS.vcf.gz\n"
+        command += f"{self.config['TOOLS']['vcf2maf']} --vep-path {self.config['TOOLS']['vep']} --vep-data {self.config['TOOLS']['vep']} --vep-forks {self.config['DEFAULT']['threads']} --ncbi-build 'GRCh38' --input-vcf {self.output_dir}/{self.name}.VQSR.PASS.vcf --output {self.output_dir}/{self.name}.VQSR.PASS.maf --tumor-id {self.name} --ref-fasta {self.config['REFERENCES']['fasta']} --vep-overwrite\n"
+        command += f"{self.config['TOOLS']['gzip']} --force --best {self.output_dir}/{self.name}.VQSR.PASS.maf\n"
+        command += f"rm -fv {self.output_dir}/{self.name}.VQSR.PASS.vcf {self.output_dir}/{self.name}.VQSR.PASS.maf"
         self.create_sh("8.MAF", command)
         return self.submit_job("8.MAF", dependency_id=dependency_id)
 
