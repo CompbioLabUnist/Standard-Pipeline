@@ -51,7 +51,7 @@ class PipelineManager(PipelineManagerBase):
         tumor_sample = normal_sample.replace("BU", "TT").replace("TN", "TT")
         self.name = tumor_sample.split("_")[0]
 
-        command = f"{os.path.realpath('./conda/bin/Rscript')} --vanilla {os.path.realpath('./conda/lib/R/library/PureCN/extdata/PureCN.R')} --sampleid {self.name} --normal {self.output}/{normal_sample}.Sort.MarkDuplicates.BQSR_coverage_loess.txt.gz --tumor {self.output}/{tumor_sample}.Sort.MarkDuplicates.BQSR_coverage_loess.txt.gz --vcf {os.path.realpath('../03_Somatic_short_variant_discovery/' + self.name + '.PASS.vcf')} --normaldb {self.output}/normalDB_hg38.rds --genome 'hg38' --intervals {self.output}/baits_hg38_intervals.txt --post-optimize --out {self.output} --seed 123 --parallel --cores {self.config['DEFAULT']['threads']} --force"
+        command = f"{os.path.realpath('./conda/bin/Rscript')} --vanilla {os.path.realpath('./conda/lib/R/library/PureCN/extdata/PureCN.R')} --sampleid {self.name} --normal {self.output}/{normal_sample}.Sort.MarkDuplicates.BQSR_coverage_loess.txt.gz --tumor {self.output}/{tumor_sample}.Sort.MarkDuplicates.BQSR_coverage_loess.txt.gz --normaldb {self.output}/normalDB_hg38.rds --genome 'hg38' --intervals {self.output}/baits_hg38_intervals.txt --post-optimize --out {self.output} --seed 123 --parallel --cores {self.config['DEFAULT']['threads']} --force"
 
         self.create_sh("4.PureCN", command)
         return self.submit_job("4.PureCN", dependency_id=dependency_id)
