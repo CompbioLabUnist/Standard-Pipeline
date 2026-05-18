@@ -2,8 +2,9 @@
 This is standard pipeline within CompBio@UNIST
 
 ## Usage guide
-1. Run .BASH file
-2. Python (.PY) files are for execution
+1. Add symbolic link for pipeline.py
+2. Run .BASH file
+3. Python (.PY) files are for execution
 
 ## Policy
 1. Use long options (starts with -- double) rather than short options (starts with - single) for readability
