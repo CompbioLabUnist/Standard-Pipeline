@@ -4,6 +4,7 @@ Following GATK somatic short variant discovery pipeline:
 https://gatk.broadinstitute.org/hc/en-us/articles/360035894731-Somatic-short-variant-discovery-SNVs-Indels-
 
 ## Panel of normals (optional)
+https://gatk.broadinstitute.org/hc/en-us/articles/360035890631-Panel-of-Normals-PON
 
 ## Mutect2
 https://gatk.broadinstitute.org/hc/en-us/articles/13832710384155-Mutect2
