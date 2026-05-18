@@ -2,7 +2,7 @@
 This is standard pipeline within CompBio@UNIST
 
 ## Usage guide
-1. Add symbolic link for pipeline.py
+1. Add symbolic link for pipeline_utils.py (```ln -sv ../pipeline_utils.py .```)
 2. Run .BASH file
 3. Python (.PY) files are for execution
 
