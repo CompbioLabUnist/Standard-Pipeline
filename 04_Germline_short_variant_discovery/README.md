@@ -4,11 +4,7 @@ Following GATK germline short variant discovery pipeline:
 https://gatk.broadinstitute.org/hc/en-us/articles/360035535932-Germline-short-variant-discovery-SNPs-Indels-
 
 ## HaplotypeCaller
+https://gatk.broadinstitute.org/hc/en-us/articles/360037225632-HaplotypeCaller
 
 ## GenotypeGVCFs
-
-## Filter variants
-
-## Refine genotypes
-
-## Annotate variants
+https://gatk.broadinstitute.org/hc/en-us/articles/360037057852-GenotypeGVCFs
