@@ -17,7 +17,7 @@ def parse_arguments():
 def main():
     args = parse_arguments()
 
-    expression_list = ["expected_count", "TPM", "FPKM"]
+    expression_list = ["TPM", "FPKM"]
 
     gene_set = set()
     for input_file in tqdm.tqdm(args.input):
