@@ -21,6 +21,7 @@ requests==2.33.1
 scipy==1.15.3
 seaborn==0.13.2
 six==1.17.0
+statannotations==0.7.2
 tqdm==4.67.3
 tzdata==2026.1
 urllib3==2.6.3
