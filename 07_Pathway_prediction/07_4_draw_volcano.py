@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 import argparse
+from adjustText import adjust_text
 import matplotlib
 import matplotlib.pyplot
 import numpy
@@ -9,7 +10,8 @@ import seaborn
 import tqdm
 
 p_threshold = -1 * numpy.log10(0.05)
-fc_threshold = numpy.log2(1.0)
+fc_threshold = numpy.log2(8.0)
+genes = 10
 
 
 def parse_arguments():
@@ -24,12 +26,13 @@ def parse_arguments():
 def main():
     args = parse_arguments()
 
-    parameters = {"font.size": 50, "axes.labelsize": 50, "axes.titlesize": 75, "xtick.labelsize": 50, "ytick.labelsize": 50, "legend.fontsize": 30, "legend.title_fontsize": 30, "figure.dpi": 600, "text.color": "black", "font.family": "sans-serif", "pdf.fonttype": 42, "ps.fonttype": 42, "pdf.compression": 9}
+    parameters = {"font.size": 50, "axes.labelsize": 50, "axes.titlesize": 75, "xtick.labelsize": 50, "ytick.labelsize": 50, "legend.fontsize": 30, "legend.title_fontsize": 30, "figure.dpi": 300, "text.color": "black", "font.family": "sans-serif", "pdf.fonttype": 42, "ps.fonttype": 42, "pdf.compression": 9}
+    bbox = {"alpha": 0.3, "color": "white"}
     matplotlib.use("Agg")
     matplotlib.rcParams.update(parameters)
     seaborn.set_theme(context="poster", style="whitegrid", rc=parameters)
 
-    expression_list = ["expected_count", "TPM", "FPKM"]
+    expression_list = ["TPM", "FPKM"]
     cancer_type_dict = {"TNBC": ["K001_TT", "K002_TT", "K003_TT"], "TNAC": ["C001_TT", "C002_TT", "C003_TT"]}
 
     input_data = pandas.read_csv(args.input, sep="\t", index_col=0)
@@ -49,7 +52,7 @@ def main():
         tnac_expression = input_data.loc[gene, list(map(lambda x: f"{x}-{expression}", cancer_type_dict["TNAC"]))]
         tnbc_expression = input_data.loc[gene, list(map(lambda x: f"{x}-{expression}", cancer_type_dict["TNBC"]))]
 
-        if (numpy.std(tnac_expression) == 0) or (numpy.std(tnbc_expression) == 0):
+        if (numpy.std(tnac_expression) < numpy.finfo(float).eps) or (numpy.std(tnbc_expression) < numpy.finfo(float).eps):
             return 1.0
 
         return -1 * numpy.log10(scipy.stats.ttest_ind(tnac_expression, tnbc_expression)[1])
@@ -61,20 +64,32 @@ def main():
         print(expression_data)
 
         ns_data = expression_data.loc[(expression_data["logp"] < p_threshold) | ((expression_data["logFC"] < fc_threshold) & (expression_data["logFC"] > - fc_threshold))]
-        up_data = expression_data.loc[(expression_data["logp"] > p_threshold) & (expression_data["logFC"] > fc_threshold)]
-        down_data = expression_data.loc[(expression_data["logp"] > p_threshold) & (expression_data["logFC"] < - fc_threshold)]
+        up_data = expression_data.loc[(expression_data["logp"] > p_threshold) & (expression_data["logFC"] > fc_threshold)].sort_values("logFC", ascending=False)
+        down_data = expression_data.loc[(expression_data["logp"] > p_threshold) & (expression_data["logFC"] < - fc_threshold)].sort_values("logFC")
 
         fig, ax = matplotlib.pyplot.subplots(figsize=(18, 18))
 
-        matplotlib.pyplot.scatter(x=ns_data["logFC"], y=ns_data["logp"], s=200, c="tab:gray", edgecolors=None, rasterized=True, label="NS")
-        matplotlib.pyplot.scatter(x=up_data["logFC"], y=up_data["logp"], s=200, c="tab:red", edgecolors=None, rasterized=True, label="TNAC")
-        matplotlib.pyplot.scatter(x=down_data["logFC"], y=down_data["logp"], s=200, c="tab:blue", edgecolors=None, rasterized=True, label="TNBC")
+        matplotlib.pyplot.scatter(x=ns_data["logFC"], y=ns_data["logp"], s=250, marker="X", c="tab:gray", alpha=0.3, edgecolors=None, rasterized=True, label=f"NS (n={len(ns_data)})")
+        matplotlib.pyplot.scatter(x=up_data["logFC"], y=up_data["logp"], s=250, marker="^", c="tab:red", edgecolors=None, rasterized=True, label=f"TNAC (n={len(up_data)})")
+        matplotlib.pyplot.scatter(x=down_data["logFC"], y=down_data["logp"], s=250, marker="v", c="tab:blue", edgecolors=None, rasterized=True, label=f"TNBC (n={len(down_data)})")
+
+        matplotlib.pyplot.axhline(y=p_threshold, color="black", linestyle="--", linewidth=2.5)
+        matplotlib.pyplot.axvline(x=fc_threshold, color="black", linestyle="--", linewidth=2.5)
+        matplotlib.pyplot.axvline(x=-1 * fc_threshold, color="black", linestyle="--", linewidth=2.5)
+
+        texts = list()
+        for index, row in up_data.iloc[:genes, :].iterrows():
+            texts.append(matplotlib.pyplot.text(row["logFC"], row["logp"], index, color="black", fontsize="xx-small", horizontalalignment="center", verticalalignment="center", bbox=bbox))
+
+        for index, row in down_data.iloc[:genes, :].iterrows():
+            texts.append(matplotlib.pyplot.text(row["logFC"], row["logp"], index, color="black", fontsize="xx-small", horizontalalignment="center", verticalalignment="center", bbox=bbox))
 
         matplotlib.pyplot.xlabel("log2(FoldChange)")
         matplotlib.pyplot.ylabel("-log10(p)")
         matplotlib.pyplot.legend(loc="lower left")
 
         matplotlib.pyplot.tight_layout()
+        adjust_text(texts, arrowprops={"arrowstyle": "->", "color": "darkgray", "linewidth": 1.5}, ax=ax)
         fig.savefig(f"{args.output}/{expression}.pdf")
         fig.savefig(f"{args.output}/{expression}.png")
         matplotlib.pyplot.close(fig)
