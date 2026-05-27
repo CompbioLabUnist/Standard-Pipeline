@@ -3,6 +3,23 @@
 This module prepares and runs PureCN for somatic copy-number analysis from BQSR
 BAM files.
 
+## Example plots
+
+The `example/` folder contains rendered examples from a PureCN run. PDF
+versions are also available for each example.
+
+### PureCN sample report
+
+<img src="example/C001-01.jpg" alt="Example PureCN sample report plot" width="700">
+
+### Segmentation plot
+
+<img src="example/C001_segmentation-1.jpg" alt="Example PureCN segmentation plot" width="700">
+
+### Local optima plot
+
+<img src="example/C001_local_optima-1.jpg" alt="Example PureCN local optima plot" width="700">
+
 ## Tool
 
 PureCN: https://bioconductor.org/packages/release/bioc/html/PureCN.html
