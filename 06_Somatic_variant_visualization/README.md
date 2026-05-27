@@ -2,6 +2,22 @@
 
 This module merges somatic MAF files and draws mutation summary plots.
 
+## Example plots
+
+The `example/` folder contains rendered examples of each plot type.
+
+### Comut plot example
+
+<img src="example/comut.png" alt="Example comut plot" width="700">
+
+### Rainfall plot example
+
+<img src="example/rainfall.png" alt="Example rainfall plot" width="700">
+
+### Lollipop plot example
+
+<img src="example/lollipop.png" alt="Example lollipop plot" width="700">
+
 ## Plot types
 
 ### Comut plot
