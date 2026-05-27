@@ -3,6 +3,32 @@
 This module runs SigProfiler MatrixGenerator, Extractor, and Plotting on PASS
 VCF files from `03_Somatic_short_variant_discovery`.
 
+## Example plots
+
+The `example/` folder contains rendered examples from SigProfiler outputs.
+PDF versions are also available for the SBS6, COSMIC SBS96, and SBS96
+decomposition examples.
+
+### Sample SBS96 plot
+
+<img src="example/PlotSBS_96_plots_C001.png" alt="Example sample SBS96 plot" width="700">
+
+### Sample DBS78 plot
+
+<img src="example/PlotDBS_78_plots_C001.png" alt="Example sample DBS78 plot" width="700">
+
+### Extracted SBS6 signatures
+
+<img src="example/SBS_6_plots_Signatures.jpg" alt="Example extracted SBS6 signatures plot" width="700">
+
+### COSMIC SBS96 signatures
+
+<img src="example/SBS_96_plots_COSMIC_SBS96.jpg" alt="Example COSMIC SBS96 signatures plot" width="700">
+
+### SBS96 decomposition
+
+<img src="example/SBS96_Decomposition_Plots.jpg" alt="Example SBS96 decomposition plot" width="700">
+
 ## SigProfiler
 
 - Web: https://cancer.sanger.ac.uk/signatures/tools/
