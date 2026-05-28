@@ -8,6 +8,18 @@ points create SLURM job scripts in `sh/`, write SLURM logs to `stdeo/`, and
 submit the jobs with `sbatch`. Use `--dryrun` when you want to generate the
 job scripts without submitting them.
 
+## Table of contents
+
+- [Repository layout](#repository-layout)
+- [Requirements](#requirements)
+- [Data](#data)
+- [Common setup](#common-setup)
+- [How to execute a module](#how-to-execute-a-module)
+- [Suggested execution order](#suggested-execution-order)
+- [Outputs and cleanup](#outputs-and-cleanup)
+- [Policy](#policy)
+- [Maintainer](#maintainer)
+
 ## Repository layout
 
 | Directory | Purpose |
