@@ -11,6 +11,33 @@ The plotting scripts currently use these hard-coded groups:
 The merged expression table must therefore contain columns named like
 `C001_TT-TPM`, `C001_TT-FPKM`, `K001_TT-TPM`, and `K001_TT-FPKM`.
 
+## Example plots
+
+The `example/` folder contains rendered examples for volcano, significant-gene
+bar, and heatmap plots. PDF versions are also available for each example.
+
+### Volcano plots
+
+<p>
+  <img src="example/Volcano-TPM.png" alt="Example TPM volcano plot" width="420">
+  <img src="example/Volcano-FPKM.png" alt="Example FPKM volcano plot" width="420">
+</p>
+
+### Significant-gene bar plots
+
+<p>
+  <img src="example/Bar-ACP5-TPM.png" alt="Example ACP5 TPM bar plot" width="320">
+  <img src="example/Bar-CHRDL2-TPM.png" alt="Example CHRDL2 TPM bar plot" width="320">
+  <img src="example/Bar-CHRDL2-FPKM.png" alt="Example CHRDL2 FPKM bar plot" width="320">
+</p>
+
+### Heatmaps
+
+<p>
+  <img src="example/Heatmap-TPM.png" alt="Example TPM heatmap" width="420">
+  <img src="example/Heatmap-FPKM.png" alt="Example FPKM heatmap" width="420">
+</p>
+
 ## Setup
 
 Run commands from this directory:
