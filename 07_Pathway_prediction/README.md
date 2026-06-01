@@ -1,7 +1,8 @@
 # Pathway prediction
 
 This module merges RSEM `*.genes.results` files and creates expression-based
-plots for the TNAC and TNBC sample groups used in this project.
+plots and pathway-enrichment plots for the TNAC and TNBC sample groups used in
+this project.
 
 The plotting scripts currently use these hard-coded groups:
 
@@ -14,7 +15,8 @@ The merged expression table must therefore contain columns named like
 ## Example plots
 
 The `example/` folder contains rendered examples for volcano, significant-gene
-bar, and heatmap plots. PDF versions are also available for each example.
+bar, heatmap, and pathway-enrichment plots. PDF versions are also available for
+each example.
 
 ### Volcano plots
 
@@ -36,6 +38,17 @@ bar, and heatmap plots. PDF versions are also available for each example.
 <p>
   <img src="example/Heatmap-TPM.png" alt="Example TPM heatmap" width="420">
   <img src="example/Heatmap-FPKM.png" alt="Example FPKM heatmap" width="420">
+</p>
+
+### Pathway enrichment plots
+
+<p>
+  <img src="example/Pathway-TPM-TNAC.png" alt="Example TPM TNAC pathway plot" width="420">
+  <img src="example/Pathway-TPM-TNBC.png" alt="Example TPM TNBC pathway plot" width="420">
+</p>
+<p>
+  <img src="example/Pathway-FPKM-TNAC.png" alt="Example FPKM TNAC pathway plot" width="420">
+  <img src="example/Pathway-FPKM-TNBC.png" alt="Example FPKM TNBC pathway plot" width="420">
 </p>
 
 ## Setup
@@ -117,6 +130,25 @@ python3 07_6_draw_heatmap.py \
 
 This writes clustered heatmaps for `TPM` and `FPKM`.
 
+## 5. Check pathway enrichment
+
+Create the output directory first:
+
+```bash
+mkdir -p Pathway
+python3 07_7_check_pathway.py \
+    "$(realpath ./expression.tsv)" \
+    "$(realpath ./Pathway)"
+```
+
+This writes pathway-enrichment plots for `TPM` and `FPKM`, split by TNAC and
+TNBC direction.
+
+Important: this step sends gene lists to the Enrichr web API at
+`maayanlab.cloud` and uses the `KEGG_2026` background. It requires internet
+access and should not be run with restricted gene lists unless external upload
+is permitted.
+
 ## Expected outputs
 
 - `expression.tsv`
@@ -126,3 +158,7 @@ This writes clustered heatmaps for `TPM` and `FPKM`.
   `Bar/<gene>-FPKM.png`
 - `Heatmap/TPM.pdf`, `Heatmap/TPM.png`, `Heatmap/FPKM.pdf`,
   `Heatmap/FPKM.png`
+- `Pathway/TPM-TNAC.pdf`, `Pathway/TPM-TNAC.png`,
+  `Pathway/TPM-TNBC.pdf`, `Pathway/TPM-TNBC.png`
+- `Pathway/FPKM-TNAC.pdf`, `Pathway/FPKM-TNAC.png`,
+  `Pathway/FPKM-TNBC.pdf`, `Pathway/FPKM-TNBC.png`
