@@ -138,6 +138,27 @@ Run only the modules needed for your analysis, but the usual WES/RNA-seq flow is
 8. `08_Mutational_signatures`
 9. `09_Somatic_copy_number_variant_discovery`
 
+Dependency map:
+
+```mermaid
+flowchart TD
+    DATA["00_Data raw FASTQ files"] --> QC["01 Quality check"]
+    DATA --> DNA["02 DNA preprocessing"]
+    DATA --> RNA["05 RNA-seq gene expression"]
+    QC -.-> DNA
+    DNA -->|"BQSR BAM"| SOM["03 Somatic short variant discovery"]
+    DNA -->|"BQSR BAM"| GER["04 Germline short variant discovery"]
+    DNA -->|"BQSR BAM"| CNV["09 Somatic copy-number variant discovery"]
+    SOM -->|"PASS MAF"| VIS["06 Somatic variant visualization"]
+    SOM -->|"PASS VCF"| SIG["08 Mutational signatures"]
+    RNA -->|"genes.results / expression.tsv"| PATH["07 Pathway prediction"]
+```
+
+The dotted edge from `01_Quality_check` to
+`02_Data_pre-processing_for_variant_discovery` is a recommended QC review gate,
+not a direct file dependency. The other edges show the main output files used by
+downstream modules.
+
 Each module README contains concrete commands, required inputs, and expected
 outputs.
 
