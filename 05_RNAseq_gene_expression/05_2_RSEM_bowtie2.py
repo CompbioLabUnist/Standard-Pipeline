@@ -22,7 +22,7 @@ class PipelineManager(PipelineManagerBase):
         command = f"{self.config['TOOLS']['rsem_directory']}/rsem-calculate-expression --num-threads {self.config['DEFAULT']['threads']} --calc-pme --calc-ci --bowtie2 --bowtie2-path {os.path.dirname(self.config['TOOLS']['bowtie2'])} --output-genome-bam --sort-bam-by-coordinate --estimate-rspd --time --paired-end {self.input[0]} {self.input[1]} {self.reference} {self.output}"
 
         self.create_sh("2-1.Bowtie2", command)
-        return self.submit_job("2-2.Bowtie2", dependency_id=dependency_id)
+        return self.submit_job("2-1.Bowtie2", dependency_id=dependency_id)
 
 
 def parse_arguments():
