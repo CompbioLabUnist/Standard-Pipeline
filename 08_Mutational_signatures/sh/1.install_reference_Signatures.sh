@@ -11,3 +11,8 @@
 rm -rfv /BiO/Teach/Standard-Pipeline/08_Mutational_signatures/input
 mkdir -p /BiO/Teach/Standard-Pipeline/08_Mutational_signatures/input
 ln -sfv /BiO/Teach/Standard-Pipeline/03_Somatic_short_variant_discovery/*.PASS.vcf /BiO/Teach/Standard-Pipeline/08_Mutational_signatures/input
+status=$?
+if [ "$status" -ne 0 ]; then
+    echo "SLURM job failed: UID=${UID:-$(id -u)} JOB_ID=${SLURM_JOB_ID:-unknown} JOB_NAME=${SLURM_JOB_NAME:-unknown} EXIT_STATUS=$status" >&2
+fi
+exit "$status"

@@ -50,6 +50,11 @@ class PipelineManagerBase:
 
             sh.write(command)
             sh.write("\n")
+            sh.write("status=$?\n")
+            sh.write("if [ \"$status\" -ne 0 ]; then\n")
+            sh.write("    echo \"SLURM job failed: UID=${UID:-$(id -u)} JOB_ID=${SLURM_JOB_ID:-unknown} JOB_NAME=${SLURM_JOB_NAME:-unknown} EXIT_STATUS=$status\" >&2\n")
+            sh.write("fi\n")
+            sh.write("exit \"$status\"\n")
 
     def submit_job(self, script_name, dependency_id: str | None = None, cpus: int | None = None):
         if self.dryrun:

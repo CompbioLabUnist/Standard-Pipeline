@@ -8,3 +8,8 @@
 #SBATCH --mail-type=FAIL
 #SBATCH --mail-user=jwlee230@compbio.unist.ac.kr
 /BiO/Share/Tools/bwa-0.7.18/bwa mem -M -t 10 -R '@RG\tID:C001_TN\tPL:ILLUMINA\tLB:C001_TN\tSM:C001_TN\tCN:UNIST' -v 3 /BiO/Share/Tools/gatk-bundle/hg38/Homo_sapiens_assembly38.fasta /BiO/Store/UNIST-ApocrineCarcinoma-SMC-2021-04/WES/merge/C001_TN_DNA_R1.fastq.gz /BiO/Store/UNIST-ApocrineCarcinoma-SMC-2021-04/WES/merge/C001_TN_DNA_R2.fastq.gz | /BiO/Share/Tools/samtools-1.21/samtools view --bam --with-header --threads 10 --reference /BiO/Share/Tools/gatk-bundle/hg38/Homo_sapiens_assembly38.fasta --output /BiO/Teach/Standard-Pipeline/02_Data_pre-processing_for_variant_discovery/C001_TN.bam
+status=$?
+if [ "$status" -ne 0 ]; then
+    echo "SLURM job failed: UID=${UID:-$(id -u)} JOB_ID=${SLURM_JOB_ID:-unknown} JOB_NAME=${SLURM_JOB_NAME:-unknown} EXIT_STATUS=$status" >&2
+fi
+exit "$status"

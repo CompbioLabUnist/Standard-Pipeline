@@ -8,3 +8,8 @@
 #SBATCH --mail-type=FAIL
 #SBATCH --mail-user=jwlee230@compbio.unist.ac.kr
 /BiO/Share/Tools/RSEM-1.3.3/rsem-calculate-expression --num-threads 10 --calc-pme --calc-ci --star --star-path /BiO/Share/Tools/STAR_2.7.11b/Linux_x86_64_static --star-gzipped-read-file --output-genome-bam --sort-bam-by-coordinate --estimate-rspd --time --paired-end /BiO/Store/UNIST-ApocrineCarcinoma-SMC-2021-04/WTS/C001_TT_RNA_R1.fastq.gz /BiO/Store/UNIST-ApocrineCarcinoma-SMC-2021-04/WTS/C001_TT_RNA_R2.fastq.gz /BiO/Teach/Standard-Pipeline/05_RNAseq_gene_expression/hg38 /BiO/Teach/Standard-Pipeline/05_RNAseq_gene_expression/C001_TT.STAR
+status=$?
+if [ "$status" -ne 0 ]; then
+    echo "SLURM job failed: UID=${UID:-$(id -u)} JOB_ID=${SLURM_JOB_ID:-unknown} JOB_NAME=${SLURM_JOB_NAME:-unknown} EXIT_STATUS=$status" >&2
+fi
+exit "$status"

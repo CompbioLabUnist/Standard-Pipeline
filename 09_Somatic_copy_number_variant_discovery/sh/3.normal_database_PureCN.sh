@@ -15,3 +15,8 @@ echo /BiO/Teach/Standard-Pipeline/09_Somatic_copy_number_variant_discovery/K001_
 echo /BiO/Teach/Standard-Pipeline/09_Somatic_copy_number_variant_discovery/K002_BU.Sort.MarkDuplicates.BQSR_coverage_loess.txt.gz >> /BiO/Teach/Standard-Pipeline/09_Somatic_copy_number_variant_discovery/normal_coverages.list
 echo /BiO/Teach/Standard-Pipeline/09_Somatic_copy_number_variant_discovery/K003_BU.Sort.MarkDuplicates.BQSR_coverage_loess.txt.gz >> /BiO/Teach/Standard-Pipeline/09_Somatic_copy_number_variant_discovery/normal_coverages.list
 /BiO/Teach/Standard-Pipeline/09_Somatic_copy_number_variant_discovery/conda/bin/Rscript --vanilla /BiO/Teach/Standard-Pipeline/09_Somatic_copy_number_variant_discovery/conda/lib/R/library/PureCN/extdata/NormalDB.R --coverage-files /BiO/Teach/Standard-Pipeline/09_Somatic_copy_number_variant_discovery/normal_coverages.list --genome 'hg38' --out-dir /BiO/Teach/Standard-Pipeline/09_Somatic_copy_number_variant_discovery --force
+status=$?
+if [ "$status" -ne 0 ]; then
+    echo "SLURM job failed: UID=${UID:-$(id -u)} JOB_ID=${SLURM_JOB_ID:-unknown} JOB_NAME=${SLURM_JOB_NAME:-unknown} EXIT_STATUS=$status" >&2
+fi
+exit "$status"

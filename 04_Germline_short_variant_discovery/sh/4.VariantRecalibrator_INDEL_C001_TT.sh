@@ -1,2 +1,7 @@
 #!/bin/bash
 /BiO/Share/Tools/gatk-4.6.1.0/gatk VariantRecalibrator --java-options "-XX:+UseSerialGC -Xmx55g" --reference /BiO/Share/Tools/gatk-bundle/hg38/Homo_sapiens_assembly38.fasta --variant /BiO/Teach/Standard-Pipeline/04_Germline_short_variant_discovery/C001_TT.DB.vcf --resource:mills,known=false,training=true,truth=true,prior=12.0 /BiO/Share/Tools/gatk-bundle/hg38/Mills_and_1000G_gold_standard.indels.hg38.vcf --resource:dbsnp,known=true,training=false,truth=false,prior=2.0 /BiO/Share/Tools/gatk-bundle/hg38/Homo_sapiens_assembly38.dbsnp138.vcf -an QD -an MQRankSum -an ReadPosRankSum -an FS -an SOR -an DP -mode INDEL --output /BiO/Teach/Standard-Pipeline/04_Germline_short_variant_discovery/C001_TT.indel.recal --tranches-file /BiO/Teach/Standard-Pipeline/04_Germline_short_variant_discovery/C001_TT.indel.tranches
+status=$?
+if [ "$status" -ne 0 ]; then
+    echo "SLURM job failed: UID=${UID:-$(id -u)} JOB_ID=${SLURM_JOB_ID:-unknown} JOB_NAME=${SLURM_JOB_NAME:-unknown} EXIT_STATUS=$status" >&2
+fi
+exit "$status"
