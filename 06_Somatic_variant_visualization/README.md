@@ -51,6 +51,16 @@ Useful commands:
 - Activate: `source ./bin/activate`
 - Deactivate: `deactivate`
 
+### UV alternative
+
+To use [uv](https://docs.astral.sh/uv/getting-started/installation/) while keeping
+the original pip setup available, run:
+
+```bash
+bash 06_4_install_uv.bash
+source ./.venv/bin/activate
+```
+
 The lollipop step also calls `/BiO/Share/Tools/lollipops`, so confirm that tool
 exists before running `06_6_draw_lollipop.py`.
 
