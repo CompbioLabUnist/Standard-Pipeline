@@ -62,6 +62,14 @@ source ./bin/activate
 bash 07_2_install_dependency.bash
 ```
 
+### UV alternative
+
+```bash
+cd 07_Pathway_prediction
+bash 07_6_install_uv.bash
+source ./.venv/bin/activate
+```
+
 Useful commands:
 
 - Activate: `source ./bin/activate`

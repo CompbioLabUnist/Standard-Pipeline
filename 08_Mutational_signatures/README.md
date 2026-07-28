@@ -47,6 +47,14 @@ source ./bin/activate
 bash 08_2_install_dependency.bash
 ```
 
+### UV alternative
+
+```bash
+cd 08_Mutational_signatures
+bash 08_4_install_uv.bash
+source ./.venv/bin/activate
+```
+
 Useful commands:
 
 - Activate: `source ./bin/activate`
