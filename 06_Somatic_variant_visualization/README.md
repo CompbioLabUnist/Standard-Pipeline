@@ -57,7 +57,7 @@ To use [uv](https://docs.astral.sh/uv/getting-started/installation/) while keepi
 the original pip setup available, run:
 
 ```bash
-bash 06_4_install_uv.bash
+bash 06_7_install_uv.bash
 source ./.venv/bin/activate
 ```
 
