@@ -32,7 +32,7 @@ class PipelineManager(PipelineManagerBase):
             else:
                 panel_of_normals_path = f"--panel-of-normals {self.output_dir}/panel_of_normals.vcf.gz"
 
-        command = f"{self.config['TOOLS']['gatk']} Mutect2 --java-options \"{self.config['DEFAULT']['java_options']}\" --reference {self.config['REFERENCES']['fasta']} --input {self.normal} {input_tumor}--output {self.output_dir}/{self.name}{panel_of_normals_label}.vcf {panel_of_normals_path}--native-pair-hmm-threads {self.config['DEFAULT']['threads']} --max-mnp-distance 0"
+        command = f"{self.config['TOOLS']['gatk']} Mutect2 --java-options \"{self.config['DEFAULT']['java_options']}\" --reference {self.config['REFERENCES']['fasta']} --input {self.normal} {input_tumor}--output {self.output_dir}/{self.name}{panel_of_normals_label}.vcf {panel_of_normals_path} --native-pair-hmm-threads {self.config['DEFAULT']['threads']} --max-mnp-distance 0"
         self.create_sh(f"1.Mutect{panel_of_normals_label}", command)
         return self.submit_job(f"1.Mutect{panel_of_normals_label}", dependency_id=dependency_id)
 
